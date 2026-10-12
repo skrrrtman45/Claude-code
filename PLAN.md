@@ -10,9 +10,10 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 ## Schritt 2: Beispieldaten
 - `js/data.js` mit ca. 8–10 fiktiven Kneipen in Berlin (Name, Adresse, Koordinaten,
   Bild, Getränkepreise, Essen, optional Verein)
+- Alle Bundesliga-Vereine der aktuellen Saison (Liste vorher prüfen)
 - 5–8 Spiele (Heim, Gast, Datum/Uhrzeit, Wettbewerb)
 - 4–6 vorhandene Treffen (Spiel, Kneipe, Uhrzeit, Teilnehmerzahl)
-- Platzhalterbilder in `img/`
+- Lizenzfreie Fotos in `img/`, Nachweise in `img/CREDITS.md`
 
 ## Schritt 3: Karte
 - Leaflet einbinden, Karte auf Berlin zentriert, volle Höhe
@@ -45,7 +46,7 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 - Treffen als Karten-Stapel, nach rechts = beitreten, nach links = überspringen
 - Umsetzung mit Touch-Events in Vanilla JS, ohne Bibliothek
 
-## Offene Fragen
-- Bilder: einfache Platzhalter (Farbflächen/Icons) oder lizenzfreie Fotos?
-- Welche Vereine sollen vorkommen (nur Berliner oder auch Bundesliga allgemein)?
-- Soll die Demo online erreichbar sein (z.B. GitHub Pages) oder nur lokal laufen?
+## Entscheidungen
+- Bilder: lizenzfreie Fotos, lokal gespeichert, mit Quellennachweis
+- Vereine: ganze Bundesliga
+- Betrieb: vorerst nur lokal; Online-Stellung (z.B. GitHub Pages) später möglich

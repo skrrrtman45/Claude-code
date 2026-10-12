@@ -41,7 +41,8 @@ js/data.js        Beispieldaten: Kneipen, Vereine, Spiele, Treffen
 js/store.js       Lesen/Schreiben von localStorage
 js/map.js         Karte, Marker, Popups
 js/app.js         Ansichtswechsel, Formulare, Event-Handler
-img/              Platzhalterbilder für Kneipen
+img/              Lizenzfreie Fotos für Kneipen
+img/CREDITS.md    Quelle, Fotograf und Lizenz je Foto
 ```
 
 ## Starten
@@ -66,7 +67,17 @@ Gerätemodus (z.B. iPhone-Größe).
 - Kneipennamen und Angaben sind **fiktiv**. Keine echten Kneipen mit erfundenen
   Preisen oder Fan-Zugehörigkeiten darstellen.
 - Koordinaten realistisch innerhalb Berlins.
-- Vereinsnamen dürfen real sein (z.B. Hertha BSC, Union Berlin), Spiele sind Beispiele.
+- Vereine: die ganze Bundesliga (reale Vereinsnamen). Die Vereinsliste der aktuellen
+  Saison vor dem Eintragen prüfen, nicht aus dem Gedächtnis übernehmen. Spiele und
+  Termine sind Beispiele.
+- Fotos: lizenzfrei (z.B. Unsplash- oder Pexels-Lizenz), lokal in `img/` speichern,
+  nicht per Hotlink. Jedes Foto in `img/CREDITS.md` mit Quelle und Lizenz eintragen.
+  Allgemeine Kneipen-/Bar-Motive, keine erkennbar echten Lokale.
+
+## Betrieb
+
+- Vorerst nur lokal. Weil die App statisch ist, kann sie später ohne Codeänderung
+  online gestellt werden (z.B. GitHub Pages).
 
 ## Arbeitsweise
 
