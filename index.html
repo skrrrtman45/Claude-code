@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover: nutzt auf iPhones den ganzen Bildschirm (inkl. Notch-Bereich) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fan-Treff</title>
+  <!-- Kleines Icon für den Browser-Tab (grüner Kreis), direkt eingebettet -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%231a7f37'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Kopfzeile: zeigt den Titel der aktuellen Ansicht -->
+  <header class="app-header">
+    <h1 id="view-title">Karte</h1>
+  </header>
+
+  <!-- Inhaltsbereich: genau eine Ansicht ist sichtbar, die anderen haben "hidden" -->
+  <main class="app-main">
+    <section id="view-map" class="view" data-title="Karte">
+      <p class="placeholder">Hier kommt die Karte hin (Schritt 3).</p>
+    </section>
+
+    <section id="view-meetups" class="view" data-title="Treffen" hidden>
+      <p class="placeholder">Hier kommt die Liste der Treffen hin (Schritt 5).</p>
+    </section>
+
+    <section id="view-create" class="view" data-title="Treffen erstellen" hidden>
+      <p class="placeholder">Hier kommt das Formular zum Erstellen hin (Schritt 7).</p>
+    </section>
+  </main>
+
+  <!-- Untere Navigationsleiste: data-view verweist auf die id der Ansicht -->
+  <nav class="app-nav">
+    <button class="nav-btn active" data-view="view-map">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zm0 2.2 6 2v11.6l-6-2V6.2z"/></svg>
+      <span>Karte</span>
+    </button>
+    <button class="nav-btn" data-view="view-meetups">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v2H4zm0 6h16v2H4zm0 6h16v2H4z"/></svg>
+      <span>Treffen</span>
+    </button>
+    <button class="nav-btn" data-view="view-create">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
+      <span>Neu</span>
+    </button>
+  </nav>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

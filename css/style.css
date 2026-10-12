@@ -1,0 +1,117 @@
+/* ---------- Farben und Grundwerte ---------- */
+:root {
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-text: #1c1f24;
+  --color-muted: #6b7280;
+  --color-primary: #1a7f37;   /* Rasengrün */
+  --color-border: #e2e4e8;
+  --header-height: 56px;
+  --nav-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ---------- Kopfzeile (oben fixiert) ---------- */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  /* env(safe-area-inset-top): Platz für die Notch auf iPhones */
+  height: calc(var(--header-height) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 16px 0;
+  display: flex;
+  align-items: center;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* ---------- Inhaltsbereich zwischen Kopfzeile und Navigation ---------- */
+.app-main {
+  position: fixed;
+  top: calc(var(--header-height) + env(safe-area-inset-top));
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+}
+
+.view {
+  height: 100%;
+  padding: 16px;
+}
+
+/* Das Attribut "hidden" muss die Ansicht sicher ausblenden */
+.view[hidden] {
+  display: none;
+}
+
+.placeholder {
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* ---------- Untere Navigationsleiste ---------- */
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: flex;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.nav-btn {
+  flex: 1;
+  min-height: 44px;              /* Mindestgröße für Touch-Ziele */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;  /* kein blauer Kasten beim Antippen */
+}
+
+.nav-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.nav-btn.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
