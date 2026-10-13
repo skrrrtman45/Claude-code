@@ -74,6 +74,20 @@ function priceListHtml(items) {
     .join("");
 }
 
+// Günstigster Preis einer Liste
+function cheapest(items) {
+  return Math.min(...items.map((item) => item.price));
+}
+
+// Sender und Ligen als kleine Chips, z.B. "Sky", "DAZN", "1. Liga", "2. Liga"
+const TV_NAMES = { sky: "Sky", dazn: "DAZN" };
+
+function featuresHtml(pub) {
+  const tv = pub.tv.map((id) => `<span class="feature">${TV_NAMES[id]}</span>`);
+  const leagues = pub.leagues.map((n) => `<span class="feature">${n}. Bundesliga</span>`);
+  return `<div class="features">${tv.join("")}${leagues.join("")}</div>`;
+}
+
 // Liste der Treffen in dieser Kneipe als HTML
 function pubMeetupsHtml(pub) {
   const meetups = meetupsAtPub(pub.id);
@@ -99,6 +113,9 @@ function pubMeetupsHtml(pub) {
 let openPubId = null;
 
 function openPubDetail(pubId, keepScroll = false) {
+  // Beim ersten Öffnen einen Verlaufseintrag anlegen,
+  // damit die Zurück-Taste/-Geste des Handys das Sheet schließt statt die Seite zu verlassen
+  if (openPubId === null) history.pushState({ sheet: true }, "");
   openPubId = pubId;
   const pub = findPub(pubId);
   const club = pub.clubId ? findClub(pub.clubId) : null;
@@ -115,16 +132,23 @@ function openPubDetail(pubId, keepScroll = false) {
     <h2 class="pub-name">${escapeHtml(pub.name)}</h2>
     <p class="muted">${escapeHtml(pub.district)}</p>
     ${fanBadge}
+    ${featuresHtml(pub)}
 
     <h3>Treffen hier</h3>
     <ul class="plain-list">${pubMeetupsHtml(pub)}</ul>
     <button class="secondary-btn" data-create-at="${pub.id}">Treffen hier erstellen</button>
 
-    <h3>Getränke</h3>
-    <ul class="price-list">${priceListHtml(pub.drinks)}</ul>
-
-    <h3>Essen</h3>
-    <ul class="price-list">${priceListHtml(pub.food)}</ul>
+    <!-- Preise eingeklappt: wichtig, aber nicht im Vordergrund -->
+    <details class="menu">
+      <summary>
+        <span>Getränke &amp; Essen</span>
+        <span class="muted">Getränke ab ${formatPrice(cheapest(pub.drinks))}</span>
+      </summary>
+      <p class="menu-heading">Getränke</p>
+      <ul class="price-list">${priceListHtml(pub.drinks)}</ul>
+      <p class="menu-heading">Essen</p>
+      <ul class="price-list">${priceListHtml(pub.food)}</ul>
+    </details>
   `;
 
   if (!keepScroll) sheetContent.scrollTop = 0;
@@ -132,11 +156,40 @@ function openPubDetail(pubId, keepScroll = false) {
   sheetBackdrop.classList.add("open");
 }
 
-function closePubDetail() {
+// Sheet sichtbar schließen (ohne Verlauf anzufassen)
+function hidePubDetail() {
   openPubId = null;
   sheet.classList.remove("open");
   sheetBackdrop.classList.remove("open");
 }
+
+// Schließen per X, Schleier oder Wischen: über den Verlauf zurückgehen,
+// das löst "popstate" aus und blendet das Sheet aus
+function closePubDetail() {
+  if (openPubId === null) return;
+  if (history.state && history.state.sheet) {
+    history.back();
+  } else {
+    hidePubDetail();
+  }
+}
+
+// Zurück-Taste/-Geste des Handys
+window.addEventListener("popstate", () => {
+  if (openPubId !== null) hidePubDetail();
+});
+
+// Nach unten wischen schließt das Sheet (nur wenn ganz nach oben gescrollt)
+let swipeStartY = null;
+sheet.addEventListener("touchstart", (event) => {
+  swipeStartY = sheetContent.scrollTop === 0 ? event.touches[0].clientY : null;
+}, { passive: true });
+sheet.addEventListener("touchend", (event) => {
+  if (swipeStartY === null) return;
+  const distance = event.changedTouches[0].clientY - swipeStartY;
+  if (distance > 80) closePubDetail();
+  swipeStartY = null;
+});
 
 document.getElementById("sheet-close").addEventListener("click", closePubDetail);
 sheetBackdrop.addEventListener("click", closePubDetail);

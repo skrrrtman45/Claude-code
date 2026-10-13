@@ -36,6 +36,8 @@ const CLUBS = [
 ];
 
 // Fiktive Kneipen. clubId = Fankneipe dieses Vereins, null = keine Fankneipe.
+// Fankneipen bewusst selten (realistischer): nur Union, Schalke, Dortmund.
+// tv = welche Sender laufen ("sky", "dazn"), leagues = gezeigte Ligen (1 = 1. Bundesliga, 2 = 2. Bundesliga).
 // image: Foto in img/ (siehe img/CREDITS.md), null = noch kein Foto.
 const PUBS = [
   {
@@ -45,6 +47,8 @@ const PUBS = [
     lat: 52.5106, lng: 13.4590,
     image: "img/pub-flutlicht.jpg",
     clubId: null,
+    tv: ["sky", "dazn"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 4.8 },
       { name: "Radler 0,5 l", price: 4.8 },
@@ -62,6 +66,8 @@ const PUBS = [
     lat: 52.5005, lng: 13.4380,
     image: "img/pub-halbzeit.jpg",
     clubId: "s04",
+    tv: ["sky", "dazn"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 4.5 },
       { name: "Weizen 0,5 l", price: 5.0 },
@@ -79,6 +85,8 @@ const PUBS = [
     lat: 52.4870, lng: 13.4320,
     image: null, // noch kein Foto: Platzhalter wird angezeigt
     clubId: null,
+    tv: ["dazn"],
+    leagues: [1],
     drinks: [
       { name: "Pils 0,5 l", price: 4.2 },
       { name: "Craft IPA 0,4 l", price: 5.5 },
@@ -95,7 +103,9 @@ const PUBS = [
     district: "Prenzlauer Berg, Helmholtzplatz",
     lat: 52.5435, lng: 13.4180,
     image: null, // noch kein Foto: Platzhalter wird angezeigt
-    clubId: "svw",
+    clubId: null,
+    tv: ["sky"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 5.0 },
       { name: "Alster 0,5 l", price: 5.0 },
@@ -112,7 +122,9 @@ const PUBS = [
     district: "Mitte, Rosenthaler Platz",
     lat: 52.5297, lng: 13.4015,
     image: "img/pub-elfmeterpunkt.jpg",
-    clubId: "fcb",
+    clubId: null,
+    tv: ["sky", "dazn"],
+    leagues: [1],
     drinks: [
       { name: "Helles 0,5 l", price: 5.2 },
       { name: "Weißbier 0,5 l", price: 5.5 },
@@ -130,6 +142,8 @@ const PUBS = [
     lat: 52.4890, lng: 13.3540,
     image: null, // noch kein Foto: Platzhalter wird angezeigt
     clubId: "bvb",
+    tv: ["sky", "dazn"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 4.6 },
       { name: "Export 0,5 l", price: 4.8 },
@@ -146,7 +160,9 @@ const PUBS = [
     district: "Wedding, Leopoldplatz",
     lat: 52.5465, lng: 13.3590,
     image: "img/pub-steilpass.jpg",
-    clubId: "hsv",
+    clubId: null,
+    tv: ["sky"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 4.0 },
       { name: "Alster 0,5 l", price: 4.0 },
@@ -164,6 +180,8 @@ const PUBS = [
     lat: 52.5055, lng: 13.3220,
     image: "img/pub-doppelpass.jpg",
     clubId: null,
+    tv: ["sky", "dazn"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,4 l", price: 5.2 },
       { name: "Weizen 0,5 l", price: 5.8 },
@@ -181,6 +199,8 @@ const PUBS = [
     lat: 52.4455, lng: 13.5750,
     image: "img/pub-eiserneecke.jpg",
     clubId: "fcu",
+    tv: ["sky", "dazn"],
+    leagues: [1, 2],
     drinks: [
       { name: "Pils 0,5 l", price: 4.0 },
       { name: "Schwarzbier 0,5 l", price: 4.5 },
@@ -197,7 +217,9 @@ const PUBS = [
     district: "Moabit, Arminiusmarkthalle",
     lat: 52.5290, lng: 13.3405,
     image: "img/pub-nachspielzeit.jpg",
-    clubId: "koe",
+    clubId: null,
+    tv: ["sky"],
+    leagues: [1, 2],
     drinks: [
       { name: "Kölsch 0,2 l", price: 2.5 },
       { name: "Pils 0,5 l", price: 4.5 },

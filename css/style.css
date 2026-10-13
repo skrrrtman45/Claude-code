@@ -831,3 +831,81 @@ body {
 .toast.show {
   transform: translate(-50%, 0);
 }
+
+/* ---------- Ausstattung: Sender und Ligen ---------- */
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.feature {
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  background: var(--color-bg);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* ---------- Preise: eingeklappt ---------- */
+.menu {
+  margin-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.menu summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Pfeil rechts, dreht sich beim Aufklappen */
+.menu summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid var(--color-muted);
+  border-bottom: 2px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.menu[open] summary::after {
+  transform: rotate(-135deg);
+}
+
+.menu summary .muted {
+  margin-left: auto;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.menu-heading {
+  margin: 8px 0 2px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.menu .price-list li {
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  border-bottom: none;
+}
+
+.menu .price-list li span:last-child {
+  font-weight: 500;
+}

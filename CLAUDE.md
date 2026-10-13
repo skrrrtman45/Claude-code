@@ -78,6 +78,8 @@ Gerätemodus (z.B. iPhone-Größe).
 - Kneipennamen und Angaben sind **fiktiv**. Keine echten Kneipen mit erfundenen
   Preisen oder Fan-Zugehörigkeiten darstellen.
 - Koordinaten realistisch innerhalb Berlins.
+- Fankneipen selten halten (derzeit 3 von 10), sonst wirkt es unrealistisch.
+- Jede Kneipe hat `tv` (Sky/DAZN) und `leagues` (1./2. Bundesliga), beides fiktiv.
 - Vereine: die ganze Bundesliga (reale Vereinsnamen). Die Vereinsliste der aktuellen
   Saison vor dem Eintragen prüfen, nicht aus dem Gedächtnis übernehmen. Spiele und
   Termine sind Beispiele.
