@@ -1,6 +1,6 @@
 // Karte mit Leaflet: zeigt alle Kneipen als Marker. Antippen öffnet die Detailansicht.
 // - Fankneipen haben einen Ring in der Vereinsfarbe.
-// - Stehen in einer Kneipe Treffen an, zeigt ein oranges Badge die Anzahl.
+// - Stehen in einer Kneipe Treffen an, zeigt ein Badge die Anzahl.
 
 const BERLIN_CENTER = [52.515, 13.41];
 

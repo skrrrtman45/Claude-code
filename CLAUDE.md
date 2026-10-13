@@ -74,8 +74,8 @@ Gerätemodus (z.B. iPhone-Größe).
 - Richtung: modern, minimalistisch, so einfach wie möglich zu bedienen, aber warm und
   mit Charakter (keine kühle Finanz-App-Optik).
 - Farben, Radien, Schatten nur über die CSS-Variablen in `css/style.css` (`:root`).
-  Hintergrund warmes Off-White, Akzent Flutlicht-Orange `#ff5a36`, Rasengrün nur
-  sparsam (z.B. Fankneipen-Badge).
+  Farbpalette: `#14382B` Dunkelgrün (Text, Hauptaktionen), `#A9C5A0` Salbei (Flächen,
+  Zweitaktionen, aktive Zustände), `#F4F1E8` Creme (Hintergrund). Rot nur für Fehler.
 - Systemschrift, Titel fett (800) mit leicht engem Zeichenabstand.
 - Runde Formen, Linien-Icons (inline SVG, kein Icon-Paket), keine Emojis.
 - Pro Ansicht genau eine Hauptaktion in Akzentfarbe. Wenig Text, große Touch-Ziele.
