@@ -1332,3 +1332,150 @@ fieldset.field legend {
   padding: 0 18px;
   margin-top: 16px;
 }
+
+/* ---------- Treffen ohne bestimmtes Spiel ---------- */
+.ball-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.general-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.field[hidden] {
+  display: none;
+}
+
+/* Chips mit Farbpunkt oder Ball-Symbol */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- Kartenfilter ---------- */
+.map-filter-btn {
+  position: absolute;
+  top: 36px;
+  right: 12px;
+  z-index: 500;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-filter-btn.active {
+  background: var(--color-text);
+  color: #fff;
+}
+
+.map-filter-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.filter-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.filter-count[hidden] {
+  display: none;
+}
+
+.map-filter {
+  position: absolute;
+  top: 88px;
+  left: 12px;
+  right: 12px;
+  z-index: 600;
+  max-height: calc(100% - 190px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 0;
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+
+.map-filter[hidden] {
+  display: none;
+}
+
+.filter-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.toggle-row.wrap {
+  flex-wrap: wrap;
+}
+
+.map-filter .toggle span {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.9rem;
+}
+
+.map-filter .field select {
+  min-height: 44px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Buttons bleiben unten sichtbar, auch wenn das Feld scrollt */
+.filter-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  margin: 0 -16px;
+  padding: 12px 16px 16px;
+  background: var(--color-surface);
+}
+
+.filter-actions button {
+  flex: 1;
+  margin: 0;
+  min-height: 46px;
+}

@@ -59,9 +59,13 @@ function meetTimeForMatch(match, time) {
   return date.toISOString();
 }
 
-// Gespeichertes Treffen in das Format der Beispieldaten umwandeln
+// Gespeichertes Treffen in das Format der Beispieldaten umwandeln.
+// Mit Spiel: Uhrzeit am Spieltag. Ohne Spiel: festes Datum (saved.date, "JJJJ-MM-TT").
 function toMeetup(saved) {
-  return { ...saved, meetTime: meetTimeForMatch(findMatch(saved.matchId), saved.time) };
+  if (saved.matchId) {
+    return { ...saved, meetTime: meetTimeForMatch(findMatch(saved.matchId), saved.time) };
+  }
+  return { ...saved, meetTime: new Date(`${saved.date}T${saved.time}`).toISOString() };
 }
 
 let savedMeetups = loadList(STORAGE_KEY_MEETUPS);
@@ -69,14 +73,15 @@ let savedMeetups = loadList(STORAGE_KEY_MEETUPS);
 // Beim Start: eigene Treffen zu den Beispiel-Treffen hinzufügen.
 // Treffen, deren Spiel oder Kneipe es nicht mehr gibt, werden übersprungen.
 savedMeetups
-  .filter((saved) => findMatch(saved.matchId) && findPub(saved.pubId))
+  .filter((saved) => (!saved.matchId || findMatch(saved.matchId)) && findPub(saved.pubId))
   .forEach((saved) => MEETUPS.push(toMeetup(saved)));
 
 // Neues Treffen anlegen, speichern und direkt beitreten
-function createMeetup({ matchId, pubId, time, host, note, spots }) {
+function createMeetup({ matchId, date, pubId, time, host, note, spots }) {
   const saved = {
     id: "u" + Date.now(),
-    matchId,
+    matchId, // null = einfach Fußball schauen
+    date,    // nur bei matchId null
     pubId,
     time,
     host,

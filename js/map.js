@@ -10,7 +10,7 @@ let markerLayer = null; // Gruppe aller Kneipen-Marker
 // Baut das Aussehen eines Markers als HTML (Leaflet "divIcon").
 function createPubIcon(pub) {
   const club = pub.clubId ? findClub(pub.clubId) : null;
-  const meetupCount = meetupsAtPub(pub.id).length;
+  const meetupCount = filteredMeetupsAt(pub).length;
 
   // Ringfarbe: Vereinsfarbe bei Fankneipen, sonst dunkel
   const ringColor = club ? club.color : "var(--color-text)";
@@ -63,7 +63,7 @@ function initMap() {
 // Marker (neu) zeichnen, z.B. nachdem ein Treffen erstellt wurde
 function renderMarkers() {
   markerLayer.clearLayers();
-  PUBS.forEach((pub) => {
+  PUBS.filter(pubMatchesFilter).forEach((pub) => {
     const marker = L.marker([pub.lat, pub.lng], { icon: createPubIcon(pub) }).addTo(markerLayer);
     // Antippen öffnet die Detailansicht (openPubDetail steht in js/app.js)
     marker.on("click", () => openPubDetail(pub.id));
@@ -74,3 +74,102 @@ function renderMarkers() {
 function refreshMap() {
   if (map) map.invalidateSize();
 }
+
+// ---------- Kartenfilter: Zeit, Bezirk, Verein, Sender ----------
+
+const mapFilterForm = document.getElementById("map-filter");
+const mapFilterBtn = document.getElementById("map-filter-btn");
+const mapFilterCount = document.getElementById("map-filter-count");
+
+// Aktueller Filter (Standard: alles zeigen)
+let mapFilter = { time: "all", district: "", club: "", tv: [] };
+
+// Liegt ein Datum im gewählten Zeitraum?
+function inTimeRange(iso, range) {
+  if (range === "all") return true;
+  const date = new Date(iso);
+  const today = new Date();
+  const sameDay = (a, b) => a.toDateString() === b.toDateString();
+  if (range === "today") return sameDay(date, today);
+  if (range === "tomorrow") {
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    return sameDay(date, tomorrow);
+  }
+  // Wochenende: kommender Samstag oder Sonntag (innerhalb der nächsten 7 Tage)
+  const inWeek = date - today < 7 * 24 * 60 * 60 * 1000;
+  return inWeek && (date.getDay() === 6 || date.getDay() === 0);
+}
+
+// Treffen einer Kneipe, die zu Zeit und Verein passen
+function filteredMeetupsAt(pub) {
+  return meetupsAtPub(pub.id).filter(
+    (meetup) =>
+      inTimeRange(meetup.meetTime, mapFilter.time) &&
+      (!mapFilter.club || meetupClubIds(meetup).includes(mapFilter.club))
+  );
+}
+
+// Soll die Kneipe auf der Karte erscheinen?
+function pubMatchesFilter(pub) {
+  if (mapFilter.district && pub.district.split(",")[0] !== mapFilter.district) return false;
+  if (!mapFilter.tv.every((tv) => pub.tv.includes(tv))) return false;
+
+  // Bei Zeit- oder Vereinsfilter: nur Kneipen mit passenden Treffen
+  // (Ausnahme: Fankneipe des gewählten Vereins ohne Zeitfilter)
+  if (mapFilter.time !== "all" || mapFilter.club) {
+    const fanPub = mapFilter.club && pub.clubId === mapFilter.club && mapFilter.time === "all";
+    return fanPub || filteredMeetupsAt(pub).length > 0;
+  }
+  return true;
+}
+
+function activeFilterCount() {
+  return (mapFilter.time !== "all") + !!mapFilter.district + !!mapFilter.club + mapFilter.tv.length;
+}
+
+// Auswahllisten füllen: Bezirke aus den Kneipen, alle Vereine
+function fillMapFilter() {
+  const districts = [...new Set(PUBS.map((pub) => pub.district.split(",")[0]))].sort();
+  mapFilterForm.district.innerHTML =
+    `<option value="">Alle Bezirke</option>` + districts.map((d) => `<option>${d}</option>`).join("");
+  mapFilterForm.club.innerHTML =
+    `<option value="">Alle Vereine</option>` +
+    CLUBS.map((club) => `<option value="${club.id}">${club.name}</option>`).join("");
+}
+
+// Formular auslesen und Karte sofort aktualisieren
+function applyMapFilter() {
+  mapFilter = {
+    time: mapFilterForm.time.value,
+    district: mapFilterForm.district.value,
+    club: mapFilterForm.club.value,
+    tv: [...mapFilterForm.querySelectorAll("[name=tv]:checked")].map((box) => box.value),
+  };
+  renderMarkers();
+  const count = activeFilterCount();
+  mapFilterCount.hidden = count === 0;
+  mapFilterCount.textContent = count;
+  mapFilterBtn.classList.toggle("active", count > 0);
+  const shown = PUBS.filter(pubMatchesFilter).length;
+  document.getElementById("map-filter-done").textContent =
+    shown === 1 ? "1 Kneipe zeigen" : `${shown} Kneipen zeigen`;
+}
+
+function toggleMapFilter(open) {
+  mapFilterForm.hidden = !open;
+  mapFilterBtn.setAttribute("aria-expanded", open);
+}
+
+mapFilterBtn.addEventListener("click", () => toggleMapFilter(mapFilterForm.hidden));
+mapFilterForm.addEventListener("change", applyMapFilter);
+mapFilterForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  toggleMapFilter(false);
+});
+document.getElementById("map-filter-reset").addEventListener("click", () => {
+  mapFilterForm.reset();
+  applyMapFilter();
+});
+
+fillMapFilter();

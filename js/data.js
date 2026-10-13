@@ -254,6 +254,7 @@ const MATCHES = [
 ];
 
 // Vorhandene Treffen. meetTime = Treffpunkt-Uhrzeit (vor dem Anstoß).
+// matchId = null: kein bestimmtes Spiel, einfach Fußball schauen.
 // participants = Anzahl bereits Angemeldeter (ohne dich), spots = maximale Plätze.
 // "Mats" ist voll (Warteliste), "Paula" und "Nils" sind kleine Gruppen.
 const MEETUPS = [
@@ -293,6 +294,12 @@ const MEETUPS = [
     host: "Nils", participants: 2, spots: 4,
     note: "Spontan heute, kleine Runde. Wer hat Lust?",
   },
+  {
+    // Treffen ohne bestimmtes Spiel: einfach Fußball schauen in Gesellschaft
+    id: "t8", matchId: null, pubId: "eckfahne", meetTime: daysFromNow(4, "15:00"),
+    host: "Aylin", participants: 3, spots: 8,
+    note: "Kein bestimmtes Spiel, einfach Konferenz schauen und Leute kennenlernen.",
+  },
 ];
 
 // ---------- Nachschlage-Funktionen ----------
@@ -309,9 +316,20 @@ function findMatch(matchId) {
   return MATCHES.find((match) => match.id === matchId);
 }
 
-// Alle Treffen in einer Kneipe, nach Uhrzeit sortiert
+// Treffen, die noch nicht vorbei sind (bis 2 Std. nach Treffpunkt sichtbar)
+function isUpcoming(meetup) {
+  return new Date(meetup.meetTime).getTime() > Date.now() - 2 * 60 * 60 * 1000;
+}
+
+// Vereine, um die es bei einem Treffen geht (leer bei "einfach Fußball schauen")
+function meetupClubIds(meetup) {
+  const match = findMatch(meetup.matchId);
+  return match ? [match.homeId, match.awayId] : [];
+}
+
+// Alle anstehenden Treffen in einer Kneipe, nach Uhrzeit sortiert
 function meetupsAtPub(pubId) {
   return MEETUPS
-    .filter((meetup) => meetup.pubId === pubId)
+    .filter((meetup) => meetup.pubId === pubId && isUpcoming(meetup))
     .sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
 }

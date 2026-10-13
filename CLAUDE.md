@@ -10,9 +10,10 @@ Es ist eine **Demo**. Kein Produktivsystem.
 ## Umfang
 
 Drin:
-- Kartenansicht mit Kneipen und Treffen
+- Kartenansicht mit Kneipen und Treffen, Filter nach Zeit, Bezirk, Verein, Sender
 - Kneipen-Detail: Bild, Getränkepreise, Essensangebot, ggf. Fankneipe eines Vereins
-- Treffen erstellen (Spiel, Kneipe, Uhrzeit, Plätze) und verbindlich zusagen
+- Treffen erstellen (Spiel oder "einfach Fußball schauen", Kneipe, Uhrzeit, Plätze)
+  und verbindlich zusagen
 - No-Show-Schutz: begrenzte Plätze, Absage bis 3 Std. vorher, Warteliste, Erinnerung in der App
 - Profil (Name, Foto, Lieblingsverein, Bezirk, Sprachen), nur im Browser gespeichert
 - Simulierter Chat pro Treffen: Beispielnachrichten + eigene Nachrichten nur auf dem Gerät,

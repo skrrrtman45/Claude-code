@@ -59,6 +59,14 @@ function matchLabel(match) {
   return `${findClub(match.homeId).short} – ${findClub(match.awayId).short}`;
 }
 
+// Titel eines Treffens: Spielpaarung oder "Fußball schauen"
+const GENERAL_TITLE = "Fußball schauen";
+
+function meetupTitle(meetup) {
+  const match = findMatch(meetup.matchId);
+  return match ? matchLabel(match) : GENERAL_TITLE;
+}
+
 // Text sicher in HTML einsetzen (wichtig, sobald Nutzer eigene Texte eingeben)
 function escapeHtml(text) {
   const div = document.createElement("div");
@@ -101,11 +109,10 @@ function pubMeetupsHtml(pub) {
   }
   return meetups
     .map((meetup) => {
-      const match = findMatch(meetup.matchId);
       return `
         <li class="meetup-row">
           <div>
-            <strong>${matchLabel(match)}</strong>
+            <strong>${meetupTitle(meetup)}</strong>
             <span class="muted">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)} · ${spotsText(meetup)}</span>
           </div>
           ${compactJoinButtonHtml(meetup)}
@@ -283,14 +290,13 @@ let pendingJoinId = null;
 
 function askToJoin(meetup) {
   pendingJoinId = meetup.id;
-  const match = findMatch(meetup.matchId);
   const pub = findPub(meetup.pubId);
   const deadline = cancelDeadline(meetup).toISOString();
   const rule = canCancel(meetup)
     ? `Absagen kannst du bis <strong>${formatDay(deadline)}, ${formatTime(deadline)} Uhr</strong> (${CANCEL_DEADLINE_HOURS} Std. vorher). Danach plant die Gruppe fest mit dir.`
     : `Das Treffen beginnt in weniger als ${CANCEL_DEADLINE_HOURS} Stunden. <strong>Eine Absage ist danach nicht mehr möglich.</strong>`;
   confirmText.innerHTML = `
-    <strong>${matchLabel(match)}</strong> · ${escapeHtml(pub.name)}<br>
+    <strong>${meetupTitle(meetup)}</strong> · ${escapeHtml(pub.name)}<br>
     ${formatDay(meetup.meetTime)}, ${formatTime(meetup.meetTime)} Uhr
     <span class="dialog-rule">${rule}</span>`;
   confirmDialog.showModal();
@@ -354,7 +360,7 @@ function renderReminder() {
   reminder.hidden = false;
   reminder.innerHTML = `
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg>
-    <span><strong>Erinnerung:</strong> ${matchLabel(findMatch(next.matchId))} um ${formatTime(next.meetTime)} Uhr
+    <span><strong>Erinnerung:</strong> ${meetupTitle(next)} um ${formatTime(next.meetTime)} Uhr
     im ${escapeHtml(findPub(next.pubId).name)}</span>`;
 }
 
@@ -364,45 +370,64 @@ const clubFilter = document.getElementById("club-filter");
 const meetupList = document.getElementById("meetup-list");
 const scopeToggle = document.getElementById("scope-toggle");
 
-// Gewählter Verein im Filter; null = alle
+// Gewählter Filter: null = alle, Vereins-id, oder "general" = ohne bestimmtes Spiel
 let selectedClubId = null;
 
-// Alle Treffen, nach Uhrzeit sortiert
+// Alle anstehenden Treffen, nach Uhrzeit sortiert
 function allMeetupsSorted() {
-  return [...MEETUPS].sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
+  return MEETUPS.filter(isUpcoming).sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
 }
 
-// Spielt der Verein in dem Spiel dieses Treffens?
-function meetupInvolvesClub(meetup, clubId) {
-  const match = findMatch(meetup.matchId);
-  return match.homeId === clubId || match.awayId === clubId;
+// Passt das Treffen zum gewählten Filter?
+function meetupMatchesFilter(meetup, filterId) {
+  if (!filterId) return true;
+  if (filterId === "general") return !meetup.matchId;
+  return meetupClubIds(meetup).includes(filterId);
 }
 
-// Filter-Chips: "Alle" plus nur die Vereine, für die es Treffen gibt
+const BALL_ICON = `<svg class="ball-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4 2.9-1.5 4.7h-5L8 10.4z"/></svg>`;
+
+// Filter-Chips: "Alle", dann der gewählte Filter (damit man sofort sieht, was aktiv ist),
+// dann Lieblingsverein, dann die übrigen Vereine mit Treffen. Jeder Verein mit Farbpunkt.
 function renderClubFilter() {
-  const clubIds = new Set();
-  MEETUPS.forEach((meetup) => {
-    const match = findMatch(meetup.matchId);
-    clubIds.add(match.homeId);
-    clubIds.add(match.awayId);
-  });
-  // Lieblingsverein aus dem Profil steht vorne
-  const clubs = CLUBS.filter((club) => clubIds.has(club.id)).sort(
-    (a, b) => (b.id === profile.clubId) - (a.id === profile.clubId)
+  const upcoming = allMeetupsSorted();
+  const clubIds = new Set(upcoming.flatMap(meetupClubIds));
+  const hasGeneral = upcoming.some((meetup) => !meetup.matchId);
+
+  const options = [];
+  if (hasGeneral) options.push({ id: "general", label: `${BALL_ICON}Ohne Spiel` });
+  CLUBS.filter((club) => clubIds.has(club.id)).forEach((club) =>
+    options.push({ id: club.id, label: `<i class="club-dot" style="background:${club.color}"></i>${club.short}` })
   );
+
+  // Reihenfolge: gewählt > Lieblingsverein > Rest
+  const rank = (o) => (o.id === selectedClubId ? 0 : o.id === profile.clubId ? 1 : 2);
+  options.sort((a, b) => rank(a) - rank(b));
 
   const chip = (id, label) =>
     `<button class="chip${selectedClubId === id ? " active" : ""}" data-club="${id ?? ""}">${label}</button>`;
 
-  clubFilter.innerHTML = chip(null, "Alle") + clubs.map((club) => chip(club.id, club.short)).join("");
+  clubFilter.innerHTML = chip(null, "Alle") + options.map((o) => chip(o.id, o.label)).join("");
+  clubFilter.scrollLeft = 0; // gewählter Chip ist direkt sichtbar
 }
 
 // Ein Treffen als Karte
 function meetupCardHtml(meetup) {
   const match = findMatch(meetup.matchId);
   const pub = findPub(meetup.pubId);
-  const home = findClub(match.homeId);
-  const away = findClub(match.awayId);
+
+  // Titel: Paarung mit Vereinsfarben, oder "Fußball schauen" mit Ball
+  let title;
+  if (match) {
+    const home = findClub(match.homeId);
+    const away = findClub(match.awayId);
+    title = `
+      <i class="club-dot" style="background:${home.color}"></i>${home.short}
+      <span class="muted-inline">–</span>
+      <i class="club-dot" style="background:${away.color}"></i>${away.short}`;
+  } else {
+    title = `${BALL_ICON}${GENERAL_TITLE}<span class="general-tag">ohne bestimmtes Spiel</span>`;
+  }
 
   return `
     <li class="meetup-card" data-pub="${pub.id}">
@@ -410,11 +435,7 @@ function meetupCardHtml(meetup) {
         <span class="meetup-when">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)}</span>
         <span class="count-pill${isFull(meetup) ? " full" : ""}">${spotsText(meetup)}</span>
       </div>
-      <p class="meetup-match">
-        <i class="club-dot" style="background:${home.color}"></i>${home.short}
-        <span class="muted-inline">–</span>
-        <i class="club-dot" style="background:${away.color}"></i>${away.short}
-      </p>
+      <p class="meetup-match">${title}</p>
       <p class="muted">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}</p>
       <p class="meetup-note">${
         meetup.note ? `„${escapeHtml(meetup.note)}“ – ` : "Erstellt von "
@@ -432,7 +453,7 @@ function isMine(meetup) {
 
 // Umschalter "Alle | Meine" mit Anzahl deiner Treffen
 function renderScopeToggle() {
-  const mineCount = MEETUPS.filter(isMine).length;
+  const mineCount = allMeetupsSorted().filter(isMine).length;
   scopeToggle.innerHTML = `
     <button class="${listScope === "all" ? "active" : ""}" data-scope="all">Alle</button>
     <button class="${listScope === "mine" ? "active" : ""}" data-scope="mine">
@@ -447,7 +468,7 @@ function renderMeetupList() {
   const meetups = allMeetupsSorted().filter((meetup) =>
     listScope === "mine"
       ? isMine(meetup)
-      : !selectedClubId || meetupInvolvesClub(meetup, selectedClubId)
+      : meetupMatchesFilter(meetup, selectedClubId)
   );
 
   if (meetups.length) {
@@ -460,7 +481,7 @@ function renderMeetupList() {
         <button class="secondary-btn" data-scope="all">Alle Treffen ansehen</button>
       </li>`;
   } else {
-    meetupList.innerHTML = `<li class="empty-state"><p class="empty-text">Keine Treffen für diesen Verein.</p></li>`;
+    meetupList.innerHTML = `<li class="empty-state"><p class="empty-text">Keine Treffen für diesen Filter.</p></li>`;
   }
 }
 
@@ -476,7 +497,9 @@ document.addEventListener("click", (event) => {
 clubFilter.addEventListener("click", (event) => {
   const chip = event.target.closest(".chip");
   if (!chip) return;
-  selectedClubId = chip.dataset.club || null;
+  // Nochmal auf den aktiven Chip tippen = Filter aufheben
+  const id = chip.dataset.club || null;
+  selectedClubId = id === selectedClubId ? null : id;
   renderClubFilter();
   renderMeetupList();
 });
@@ -497,6 +520,7 @@ renderReminder();
 const createForm = document.getElementById("create-form");
 const formError = document.getElementById("form-error");
 const timeHint = document.getElementById("time-hint");
+const dateField = document.getElementById("date-field");
 const toast = document.getElementById("toast");
 
 // Auswahllisten füllen: Spiele nach Anstoß sortiert, Kneipen alphabetisch
@@ -504,6 +528,7 @@ function fillCreateForm() {
   const matches = [...MATCHES].sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
   createForm.match.innerHTML =
     `<option value="">Spiel wählen</option>` +
+    `<option value="general">Kein bestimmtes Spiel – einfach Fußball schauen</option>` +
     matches
       .map((match) => `<option value="${match.id}">${matchLabel(match)} · ${formatDay(match.kickoff)}, ${formatTime(match.kickoff)}</option>`)
       .join("");
@@ -517,10 +542,27 @@ function fillCreateForm() {
         return `<option value="${pub.id}">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}${club}</option>`;
       })
       .join("");
+
+  // Datumsauswahl für Treffen ohne Spiel: heute und die nächsten 6 Tage
+  createForm.date.innerHTML = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date();
+    day.setDate(day.getDate() + i);
+    const value = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+    const label = i === 0 ? "Heute" : i === 1 ? "Morgen" : formatDay(day.toISOString());
+    return `<option value="${value}">${label}</option>`;
+  }).join("");
 }
 
-// Nach Spielauswahl: Uhrzeit 30 Minuten vor Anstoß vorschlagen
+// Nach Spielauswahl: Uhrzeit 30 Minuten vor Anstoß vorschlagen.
+// Ohne bestimmtes Spiel: Datumsfeld einblenden, 15:00 vorschlagen.
 createForm.match.addEventListener("change", () => {
+  const general = createForm.match.value === "general";
+  dateField.hidden = !general;
+  if (general) {
+    if (!createForm.time.value) createForm.time.value = "15:00";
+    timeHint.textContent = "z.B. Samstag 15:30 zur Bundesliga-Konferenz";
+    return;
+  }
   const match = findMatch(createForm.match.value);
   if (!match) {
     timeHint.textContent = "";
@@ -533,12 +575,16 @@ createForm.match.addEventListener("change", () => {
 
 // Prüft die Eingaben. Gibt einen Fehlertext zurück oder "" wenn alles passt.
 function validateCreateForm() {
+  const general = createForm.match.value === "general";
   const match = findMatch(createForm.match.value);
-  if (!match) return "Bitte wähle ein Spiel.";
+  if (!match && !general) return "Bitte wähle ein Spiel oder „Kein bestimmtes Spiel“.";
   if (!createForm.pub.value) return "Bitte wähle eine Kneipe.";
   if (!createForm.time.value) return "Bitte gib eine Uhrzeit an.";
-  if (meetTimeForMatch(match, createForm.time.value) > match.kickoff) {
+  if (match && meetTimeForMatch(match, createForm.time.value) > match.kickoff) {
     return `Der Treffpunkt sollte vor dem Anstoß (${formatTime(match.kickoff)} Uhr) liegen.`;
+  }
+  if (general && new Date(`${createForm.date.value}T${createForm.time.value}`) < new Date()) {
+    return "Die Uhrzeit liegt in der Vergangenheit.";
   }
   if (!createForm.host.value.trim()) return "Bitte gib deinen Vornamen an.";
   return "";
@@ -551,8 +597,10 @@ createForm.addEventListener("submit", (event) => {
   formError.textContent = error;
   if (error) return;
 
+  const general = createForm.match.value === "general";
   createMeetup({
-    matchId: createForm.match.value,
+    matchId: general ? null : createForm.match.value,
+    date: general ? createForm.date.value : undefined,
     pubId: createForm.pub.value,
     time: createForm.time.value,
     host: createForm.host.value.trim(),
@@ -563,6 +611,7 @@ createForm.addEventListener("submit", (event) => {
   // Formular leeren, alles neu zeichnen, zur Liste wechseln
   createForm.reset();
   timeHint.textContent = "";
+  dateField.hidden = true;
   selectedClubId = null;
   renderClubFilter();
   renderMeetupList();
@@ -738,8 +787,7 @@ function renderChat() {
 
 function openChat(meetup) {
   chatMeetup = meetup;
-  const match = findMatch(meetup.matchId);
-  document.getElementById("chat-title").textContent = matchLabel(match);
+  document.getElementById("chat-title").textContent = meetupTitle(meetup);
   document.getElementById("chat-subtitle").textContent =
     `${findPub(meetup.pubId).name} · ${formatDay(meetup.meetTime)}, ${formatTime(meetup.meetTime)}`;
   renderChat();

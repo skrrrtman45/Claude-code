@@ -54,6 +54,10 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 - Zurück-Geste schließt Detailansicht, Preise eingeklappt, nur 3 Fankneipen, Sky/DAZN und Ligen
 - Ruhigere Karte: OpenStreetMap entsättigt und aufgehellt (CARTO verworfen: verlangte API-Schlüssel)
 - Profil, No-Show-Schutz, simulierter Chat
+- "Alle | Meine" in der Treffen-Liste
+- Vereinsfilter mit Farbpunkten, gewählter Verein springt nach vorne
+- Treffen ohne bestimmtes Spiel ("einfach Fußball schauen")
+- Kartenfilter: Zeit, Bezirk, Verein, Sky/DAZN
 
 ## Ideen für später (nicht in der Demo)
 - Benachrichtigungen: neues Treffen für deinen Verein in deinem Bezirk, Änderungen bei Anstoßzeiten
