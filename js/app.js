@@ -106,7 +106,7 @@ function pubMeetupsHtml(pub) {
         <li class="meetup-row">
           <div>
             <strong>${matchLabel(match)}</strong>
-            <span class="muted">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)} · ${participantCount(meetup)} dabei</span>
+            <span class="muted">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)} · ${spotsText(meetup)}</span>
           </div>
           ${compactJoinButtonHtml(meetup)}
         </li>`;
@@ -202,37 +202,155 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePubDetail();
 });
 
-// ---------- Beitreten ----------
+// ---------- Zusagen, Absagen, Warteliste (No-Show-Schutz) ----------
 
 const CHECK_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
 
-// Großer Knopf für die Karten in der Treffen-Liste
-function joinButtonHtml(meetup) {
-  if (!isJoined(meetup.id)) {
-    return `<button class="join-btn" data-join="${meetup.id}">Beitreten</button>`;
+// "6 von 8 dabei" bzw. "Voll"
+function spotsText(meetup) {
+  return isFull(meetup) ? "Voll" : `${participantCount(meetup)} von ${meetup.spots} dabei`;
+}
+
+// Kurzer Hinweis unter dem Button
+function spotsHint(meetup) {
+  if (isJoined(meetup.id)) {
+    return canCancel(meetup)
+      ? `Absagen bis ${formatDay(cancelDeadline(meetup).toISOString())}, ${formatTime(cancelDeadline(meetup).toISOString())}`
+      : "Absage nicht mehr möglich – bitte im Chat Bescheid geben";
   }
-  return `
-    <div class="joined-row">
-      <span class="joined-label">${CHECK_ICON}Du bist dabei</span>
-      <button class="leave-btn" data-join="${meetup.id}">Austreten</button>
-    </div>`;
+  if (isOnWaitlist(meetup.id)) return "Wird ein Platz frei, rückst du nach.";
+  if (spotsLeft(meetup) === 1) return "Nur noch 1 Platz frei";
+  return "";
 }
 
-// Kleiner Umschalt-Knopf für die Zeilen im Kneipen-Detail
+// Buttons für die Karten in der Treffen-Liste.
+// data-action sagt dem zentralen Klick-Handler (unten), was zu tun ist.
+function joinButtonHtml(meetup) {
+  const id = meetup.id;
+  const hint = spotsHint(meetup);
+  const hintHtml = hint ? `<p class="join-hint">${hint}</p>` : "";
+
+  if (isJoined(id)) {
+    return `
+      <div class="joined-row">
+        <span class="joined-label">${CHECK_ICON}Du bist dabei</span>
+        ${canCancel(meetup) ? `<button class="leave-btn" data-action="cancel" data-id="${id}">Absagen</button>` : ""}
+      </div>${hintHtml}`;
+  }
+  if (isOnWaitlist(id)) {
+    return `
+      <div class="joined-row">
+        <span class="waitlist-label">Auf der Warteliste</span>
+        <button class="leave-btn" data-action="waitlist" data-id="${id}">Verlassen</button>
+      </div>${hintHtml}`;
+  }
+  if (isFull(meetup)) {
+    return `<button class="join-btn join-btn-secondary" data-action="waitlist" data-id="${id}">Auf die Warteliste</button>`;
+  }
+  return `<button class="join-btn" data-action="join" data-id="${id}">Zusagen</button>${hintHtml}`;
+}
+
+// Kompakter Button für die Zeilen im Kneipen-Detail
 function compactJoinButtonHtml(meetup) {
-  const joined = isJoined(meetup.id);
-  return `<button class="join-btn-small${joined ? " joined" : ""}" data-join="${meetup.id}"
-            aria-pressed="${joined}">${joined ? CHECK_ICON + "Dabei" : "Beitreten"}</button>`;
+  const id = meetup.id;
+  if (isJoined(id)) {
+    return `<button class="join-btn-small joined" data-action="${canCancel(meetup) ? "cancel" : "locked"}" data-id="${id}">${CHECK_ICON}Dabei</button>`;
+  }
+  if (isOnWaitlist(id)) {
+    return `<button class="join-btn-small joined" data-action="waitlist" data-id="${id}">Warteliste</button>`;
+  }
+  if (isFull(meetup)) {
+    return `<button class="join-btn-small" data-action="waitlist" data-id="${id}">Warteliste</button>`;
+  }
+  return `<button class="join-btn-small" data-action="join" data-id="${id}">Zusagen</button>`;
 }
 
-// Ein Tipp auf irgendeinen Beitreten-/Austreten-Knopf, egal in welcher Ansicht
-document.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-join]");
-  if (!button) return;
-  toggleJoin(button.dataset.join);
+// Nach jeder Änderung: alles neu zeichnen, was Teilnehmer zeigt
+function refreshMeetupViews() {
+  renderReminder();
   renderMeetupList();
   if (openPubId) openPubDetail(openPubId, true);
+}
+
+// ----- Bestätigungsdialog für die verbindliche Zusage -----
+
+const confirmDialog = document.getElementById("confirm-dialog");
+const confirmText = document.getElementById("confirm-text");
+let pendingJoinId = null;
+
+function askToJoin(meetup) {
+  pendingJoinId = meetup.id;
+  const match = findMatch(meetup.matchId);
+  const pub = findPub(meetup.pubId);
+  const deadline = cancelDeadline(meetup).toISOString();
+  const rule = canCancel(meetup)
+    ? `Absagen kannst du bis <strong>${formatDay(deadline)}, ${formatTime(deadline)} Uhr</strong> (${CANCEL_DEADLINE_HOURS} Std. vorher). Danach plant die Gruppe fest mit dir.`
+    : `Das Treffen beginnt in weniger als ${CANCEL_DEADLINE_HOURS} Stunden. <strong>Eine Absage ist danach nicht mehr möglich.</strong>`;
+  confirmText.innerHTML = `
+    <strong>${matchLabel(match)}</strong> · ${escapeHtml(pub.name)}<br>
+    ${formatDay(meetup.meetTime)}, ${formatTime(meetup.meetTime)} Uhr
+    <span class="dialog-rule">${rule}</span>`;
+  confirmDialog.showModal();
+}
+
+document.getElementById("confirm-yes").addEventListener("click", () => {
+  if (pendingJoinId && !isJoined(pendingJoinId)) toggleJoin(pendingJoinId);
+  confirmDialog.close();
+  refreshMeetupViews();
+  showToast("Zugesagt – die Gruppe zählt auf dich");
 });
+
+document.getElementById("confirm-no").addEventListener("click", () => confirmDialog.close());
+
+// ----- Zentraler Klick-Handler für alle Zusage-Buttons -----
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+  const meetup = MEETUPS.find((m) => m.id === button.dataset.id);
+  if (!meetup) return;
+
+  switch (button.dataset.action) {
+    case "join":
+      askToJoin(meetup);
+      return; // neu zeichnen erst nach Bestätigung
+    case "cancel":
+      toggleJoin(meetup.id);
+      showToast("Abgesagt");
+      break;
+    case "locked":
+      showToast("Absage nicht mehr möglich – bitte im Chat Bescheid geben");
+      return;
+    case "waitlist":
+      toggleWaitlist(meetup.id);
+      showToast(isOnWaitlist(meetup.id) ? "Du stehst auf der Warteliste" : "Warteliste verlassen");
+      break;
+  }
+  refreshMeetupViews();
+});
+
+// ----- Erinnerung: deine Treffen in den nächsten 24 Stunden -----
+
+const reminder = document.getElementById("reminder");
+
+function renderReminder() {
+  const now = Date.now();
+  const soon = MEETUPS.filter((m) => {
+    const t = new Date(m.meetTime).getTime();
+    return isJoined(m.id) && t > now && t - now < 24 * 60 * 60 * 1000;
+  }).sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
+
+  if (soon.length === 0) {
+    reminder.hidden = true;
+    return;
+  }
+  const next = soon[0];
+  reminder.hidden = false;
+  reminder.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg>
+    <span><strong>Erinnerung:</strong> ${matchLabel(findMatch(next.matchId))} um ${formatTime(next.meetTime)} Uhr
+    im ${escapeHtml(findPub(next.pubId).name)}</span>`;
+}
 
 // ---------- Treffen-Liste mit Vereinsfilter ----------
 
@@ -283,7 +401,7 @@ function meetupCardHtml(meetup) {
     <li class="meetup-card" data-pub="${pub.id}">
       <div class="meetup-top">
         <span class="meetup-when">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)}</span>
-        <span class="count-pill">${participantCount(meetup)} dabei</span>
+        <span class="count-pill${isFull(meetup) ? " full" : ""}">${spotsText(meetup)}</span>
       </div>
       <p class="meetup-match">
         <i class="club-dot" style="background:${home.color}"></i>${home.short}
@@ -319,13 +437,14 @@ clubFilter.addEventListener("click", (event) => {
 
 // Karte antippen: Detail der Kneipe öffnen (außer der Beitreten-Knopf wurde getippt)
 meetupList.addEventListener("click", (event) => {
-  if (event.target.closest("[data-join]")) return;
+  if (event.target.closest("[data-action]")) return;
   const card = event.target.closest(".meetup-card");
   if (card) openPubDetail(card.dataset.pub);
 });
 
 renderClubFilter();
 renderMeetupList();
+renderReminder();
 
 // ---------- Treffen erstellen ----------
 
@@ -392,6 +511,7 @@ createForm.addEventListener("submit", (event) => {
     time: createForm.time.value,
     host: createForm.host.value.trim(),
     note: createForm.note.value.trim(),
+    spots: Number(createForm.spots.value),
   });
 
   // Formular leeren, alles neu zeichnen, zur Liste wechseln
@@ -400,6 +520,7 @@ createForm.addEventListener("submit", (event) => {
   selectedClubId = null;
   renderClubFilter();
   renderMeetupList();
+  renderReminder();
   renderMarkers();
   showView("view-meetups");
   showToast("Treffen erstellt – du bist dabei");

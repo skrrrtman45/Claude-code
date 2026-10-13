@@ -13,6 +13,13 @@ function daysFromNow(days, time) {
   return date.toISOString();
 }
 
+// Hilfsfunktion: "in X Stunden", auf die Viertelstunde gerundet, als ISO-Text.
+function hoursFromNow(hours) {
+  const date = new Date(Date.now() + hours * 60 * 60 * 1000);
+  date.setMinutes(Math.round(date.getMinutes() / 15) * 15, 0, 0);
+  return date.toISOString();
+}
+
 // Bundesliga-Vereine 2026/27 (18 Vereine). color = Hauptfarbe für Badges.
 const CLUBS = [
   { id: "fcb", name: "FC Bayern München", short: "Bayern", color: "#dc052d" },
@@ -242,40 +249,49 @@ const MATCHES = [
   { id: "m6", homeId: "sge", awayId: "bmg", kickoff: daysFromNow(5, "15:30") },
   { id: "m7", homeId: "sve", awayId: "scp", kickoff: daysFromNow(5, "15:30") },
   { id: "m8", homeId: "m05", awayId: "scf", kickoff: daysFromNow(6, "17:30") },
+  // Spiel in ca. 3 Stunden: zeigt Erinnerung und Absage-Frist in der Demo
+  { id: "m9", homeId: "fca", awayId: "tsg", kickoff: hoursFromNow(3) },
 ];
 
 // Vorhandene Treffen. meetTime = Treffpunkt-Uhrzeit (vor dem Anstoß).
-// participants = Anzahl bereits Angemeldeter (ohne dich).
+// participants = Anzahl bereits Angemeldeter (ohne dich), spots = maximale Plätze.
+// "Mats" ist voll (Warteliste), "Paula" und "Nils" sind kleine Gruppen.
 const MEETUPS = [
   {
     id: "t1", matchId: "m1", pubId: "eiserneecke", meetTime: daysFromNow(2, "14:45"),
-    host: "Jonas", participants: 12,
+    host: "Jonas", participants: 12, spots: 15,
     note: "Neu in Köpenick und suche Leute für die Alte Försterei-Stimmung am Tresen.",
   },
   {
     id: "t2", matchId: "m1", pubId: "elfmeterpunkt", meetTime: daysFromNow(2, "15:00"),
-    host: "Sophie", participants: 4,
+    host: "Sophie", participants: 4, spots: 6,
     note: "Bayern-Fans in Mitte, wer schaut mit?",
   },
   {
     id: "t3", matchId: "m2", pubId: "halbzeit", meetTime: daysFromNow(2, "17:45"),
-    host: "Lea", participants: 6,
+    host: "Lea", participants: 6, spots: 8,
     note: "Revierderby! Erst seit einem Monat in Berlin, freue mich auf Schalker.",
   },
   {
     id: "t4", matchId: "m3", pubId: "steilpass", meetTime: daysFromNow(3, "16:45"),
-    host: "Mats", participants: 9,
+    host: "Mats", participants: 9, spots: 9,
     note: "Nordderby gucken, Werder-Fans ausdrücklich willkommen.",
   },
   {
     id: "t5", matchId: "m4", pubId: "nachspielzeit", meetTime: daysFromNow(3, "14:45"),
-    host: "Deniz", participants: 7,
+    host: "Deniz", participants: 7, spots: 8,
     note: "Kölsch und Effzeh. Kommt einfach vorbei.",
   },
   {
     id: "t6", matchId: "m6", pubId: "flutlicht", meetTime: daysFromNow(5, "15:00"),
-    host: "Paula", participants: 3,
+    host: "Paula", participants: 3, spots: 4,
     note: "Neutral, einfach Lust auf Fußball und neue Leute.",
+  },
+  {
+    id: "t7", matchId: "m9", pubId: "doppelpass",
+    meetTime: new Date(new Date(MATCHES[8].kickoff).getTime() - 30 * 60 * 1000).toISOString(),
+    host: "Nils", participants: 2, spots: 4,
+    note: "Spontan heute, kleine Runde. Wer hat Lust?",
   },
 ];
 

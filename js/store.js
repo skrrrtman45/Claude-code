@@ -73,7 +73,7 @@ savedMeetups
   .forEach((saved) => MEETUPS.push(toMeetup(saved)));
 
 // Neues Treffen anlegen, speichern und direkt beitreten
-function createMeetup({ matchId, pubId, time, host, note }) {
+function createMeetup({ matchId, pubId, time, host, note, spots }) {
   const saved = {
     id: "u" + Date.now(),
     matchId,
@@ -82,6 +82,7 @@ function createMeetup({ matchId, pubId, time, host, note }) {
     host,
     note,
     participants: 0, // du selbst zählst über den Beitritt
+    spots,
   };
   savedMeetups.push(saved);
   saveList(STORAGE_KEY_MEETUPS, savedMeetups);
@@ -115,4 +116,40 @@ function saveProfile(newProfile) {
   } catch {
     // z.B. Speicher voll: ignorieren
   }
+}
+
+// ---------- No-Show-Schutz: Plätze, Absage-Frist, Warteliste ----------
+
+// Bis so viele Stunden vor dem Treffpunkt darf man absagen
+const CANCEL_DEADLINE_HOURS = 3;
+
+const STORAGE_KEY_WAITLIST = "fantreff.waitlist";
+let waitlistIds = loadList(STORAGE_KEY_WAITLIST);
+
+function spotsLeft(meetup) {
+  return meetup.spots - participantCount(meetup);
+}
+
+function isFull(meetup) {
+  return spotsLeft(meetup) <= 0;
+}
+
+// Zeitpunkt, bis zu dem eine Absage möglich ist
+function cancelDeadline(meetup) {
+  return new Date(new Date(meetup.meetTime).getTime() - CANCEL_DEADLINE_HOURS * 60 * 60 * 1000);
+}
+
+function canCancel(meetup) {
+  return new Date() < cancelDeadline(meetup);
+}
+
+function isOnWaitlist(meetupId) {
+  return waitlistIds.includes(meetupId);
+}
+
+function toggleWaitlist(meetupId) {
+  waitlistIds = isOnWaitlist(meetupId)
+    ? waitlistIds.filter((id) => id !== meetupId)
+    : [...waitlistIds, meetupId];
+  saveList(STORAGE_KEY_WAITLIST, waitlistIds);
 }

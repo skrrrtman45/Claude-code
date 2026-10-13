@@ -1040,3 +1040,100 @@ fieldset.field legend {
 .toggle input:focus-visible + span {
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
+
+/* ---------- No-Show-Schutz ---------- */
+.join-btn-secondary {
+  background: var(--color-text);
+}
+
+.join-hint {
+  margin: 8px 0 0 !important;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.waitlist-label {
+  font-weight: 700;
+  color: var(--color-accent-strong);
+}
+
+.count-pill.full {
+  background: var(--color-text);
+  color: #fff;
+}
+
+/* Erinnerung oben in der Treffen-Liste */
+.reminder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-m);
+  background: var(--color-accent-soft);
+  font-size: 0.9rem;
+}
+
+.reminder[hidden] {
+  display: none;
+}
+
+.reminder svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--color-accent-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Dialog für die verbindliche Zusage */
+.dialog {
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 24px;
+  border: none;
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow);
+}
+
+.dialog::backdrop {
+  background: rgba(27, 26, 23, 0.45);
+}
+
+.dialog h2 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dialog p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dialog-rule {
+  display: block;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius-s);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialog-actions button {
+  flex: 1;
+  margin: 0;
+  min-height: 48px;
+}

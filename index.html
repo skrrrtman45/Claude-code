@@ -40,6 +40,8 @@
 
     <section id="view-meetups" class="view" data-title="Treffen" hidden>
       <!-- Filter nach Verein: waagerecht wischbare Chips, werden in js/app.js erzeugt -->
+      <!-- Erinnerung an deine nächsten Treffen (js/app.js) -->
+      <div id="reminder" class="reminder" hidden></div>
       <div id="club-filter" class="chip-row"></div>
       <ul id="meetup-list" class="meetup-list"></ul>
     </section>
@@ -61,6 +63,15 @@
           <span class="field-label">Treffpunkt-Uhrzeit</span>
           <input type="time" name="time" required>
           <span class="field-hint" id="time-hint"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Plätze (inklusive dir)</span>
+          <select name="spots">
+            <option>2</option><option>3</option><option>4</option><option>5</option>
+            <option selected>6</option><option>8</option><option>10</option><option>15</option>
+          </select>
+          <span class="field-hint">Kleine Gruppen sind persönlicher. Zusagen sind verbindlich, Absagen bis 3 Std. vorher.</span>
         </label>
 
         <label class="field">
@@ -143,6 +154,16 @@
     </button>
     <div id="pub-sheet-content" class="sheet-content"></div>
   </div>
+
+  <!-- Bestätigung vor der verbindlichen Zusage -->
+  <dialog id="confirm-dialog" class="dialog">
+    <h2>Verbindlich zusagen?</h2>
+    <p id="confirm-text"></p>
+    <div class="dialog-actions">
+      <button id="confirm-no" class="secondary-btn">Abbrechen</button>
+      <button id="confirm-yes" class="submit-btn">Zusagen</button>
+    </div>
+  </dialog>
 
   <!-- Kurze Bestätigung, z.B. "Treffen erstellt" -->
   <div id="toast" class="toast" role="status"></div>
