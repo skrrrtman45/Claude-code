@@ -87,15 +87,19 @@ function pubMeetupsHtml(pub) {
         <li class="meetup-row">
           <div>
             <strong>${matchLabel(match)}</strong>
-            <span class="muted">${formatDay(meetup.meetTime)} · Treffen ${formatTime(meetup.meetTime)}</span>
+            <span class="muted">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)} · ${participantCount(meetup)} dabei</span>
           </div>
-          <span class="count-pill">${meetup.participants} dabei</span>
+          ${compactJoinButtonHtml(meetup)}
         </li>`;
     })
     .join("");
 }
 
-function openPubDetail(pubId) {
+// Welche Kneipe gerade im Sheet offen ist (null = keine)
+let openPubId = null;
+
+function openPubDetail(pubId, keepScroll = false) {
+  openPubId = pubId;
   const pub = findPub(pubId);
   const club = pub.clubId ? findClub(pub.clubId) : null;
 
@@ -122,12 +126,13 @@ function openPubDetail(pubId) {
     <ul class="price-list">${priceListHtml(pub.food)}</ul>
   `;
 
-  sheetContent.scrollTop = 0;
+  if (!keepScroll) sheetContent.scrollTop = 0;
   sheet.classList.add("open");
   sheetBackdrop.classList.add("open");
 }
 
 function closePubDetail() {
+  openPubId = null;
   sheet.classList.remove("open");
   sheetBackdrop.classList.remove("open");
 }
@@ -136,6 +141,38 @@ document.getElementById("sheet-close").addEventListener("click", closePubDetail)
 sheetBackdrop.addEventListener("click", closePubDetail);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePubDetail();
+});
+
+// ---------- Beitreten ----------
+
+const CHECK_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+
+// Großer Knopf für die Karten in der Treffen-Liste
+function joinButtonHtml(meetup) {
+  if (!isJoined(meetup.id)) {
+    return `<button class="join-btn" data-join="${meetup.id}">Beitreten</button>`;
+  }
+  return `
+    <div class="joined-row">
+      <span class="joined-label">${CHECK_ICON}Du bist dabei</span>
+      <button class="leave-btn" data-join="${meetup.id}">Austreten</button>
+    </div>`;
+}
+
+// Kleiner Umschalt-Knopf für die Zeilen im Kneipen-Detail
+function compactJoinButtonHtml(meetup) {
+  const joined = isJoined(meetup.id);
+  return `<button class="join-btn-small${joined ? " joined" : ""}" data-join="${meetup.id}"
+            aria-pressed="${joined}">${joined ? CHECK_ICON + "Dabei" : "Beitreten"}</button>`;
+}
+
+// Ein Tipp auf irgendeinen Beitreten-/Austreten-Knopf, egal in welcher Ansicht
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-join]");
+  if (!button) return;
+  toggleJoin(button.dataset.join);
+  renderMeetupList();
+  if (openPubId) openPubDetail(openPubId, true);
 });
 
 // ---------- Treffen-Liste mit Vereinsfilter ----------
@@ -184,7 +221,7 @@ function meetupCardHtml(meetup) {
     <li class="meetup-card" data-pub="${pub.id}">
       <div class="meetup-top">
         <span class="meetup-when">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)}</span>
-        <span class="count-pill">${meetup.participants} dabei</span>
+        <span class="count-pill">${participantCount(meetup)} dabei</span>
       </div>
       <p class="meetup-match">
         <i class="club-dot" style="background:${home.color}"></i>${home.short}
@@ -193,6 +230,7 @@ function meetupCardHtml(meetup) {
       </p>
       <p class="muted">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}</p>
       <p class="meetup-note">„${escapeHtml(meetup.note)}“ – ${escapeHtml(meetup.host)}</p>
+      ${joinButtonHtml(meetup)}
     </li>`;
 }
 
@@ -215,8 +253,9 @@ clubFilter.addEventListener("click", (event) => {
   renderMeetupList();
 });
 
-// Karte antippen: Detail der Kneipe öffnen
+// Karte antippen: Detail der Kneipe öffnen (außer der Beitreten-Knopf wurde getippt)
 meetupList.addEventListener("click", (event) => {
+  if (event.target.closest("[data-join]")) return;
   const card = event.target.closest(".meetup-card");
   if (card) openPubDetail(card.dataset.pub);
 });
