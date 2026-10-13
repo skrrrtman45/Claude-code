@@ -41,10 +41,38 @@
     </section>
 
     <section id="view-create" class="view" data-title="Neues Treffen" hidden>
-      <div class="empty-state">
-        <p class="empty-title">Hier kommt das Formular hin</p>
-        <p class="empty-text">Spiel, Kneipe, Uhrzeit wählen (Schritt 7).</p>
-      </div>
+      <!-- novalidate: Fehler zeigen wir selbst auf Deutsch an (js/app.js) -->
+      <form id="create-form" class="form" novalidate>
+        <label class="field">
+          <span class="field-label">Spiel</span>
+          <select name="match" required></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Kneipe</span>
+          <select name="pub" required></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Treffpunkt-Uhrzeit</span>
+          <input type="time" name="time" required>
+          <span class="field-hint" id="time-hint"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Dein Vorname</span>
+          <input type="text" name="host" maxlength="30" autocomplete="given-name" required>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Kurze Nachricht <span class="optional">optional</span></span>
+          <textarea name="note" rows="3" maxlength="140"
+                    placeholder="z.B. Neu in Berlin, wer schaut mit?"></textarea>
+        </label>
+
+        <p id="form-error" class="form-error" role="alert"></p>
+        <button type="submit" class="submit-btn">Treffen erstellen</button>
+      </form>
     </section>
   </main>
 
@@ -74,6 +102,9 @@
     </button>
     <div id="pub-sheet-content" class="sheet-content"></div>
   </div>
+
+  <!-- Kurze Bestätigung, z.B. "Treffen erstellt" -->
+  <div id="toast" class="toast" role="status"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

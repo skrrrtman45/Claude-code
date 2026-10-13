@@ -5,6 +5,7 @@
 const BERLIN_CENTER = [52.515, 13.41];
 
 let map = null;
+let markerLayer = null; // Gruppe aller Kneipen-Marker
 
 // Baut das Aussehen eines Markers als HTML (Leaflet "divIcon").
 function createPubIcon(pub) {
@@ -39,16 +40,14 @@ function initMap() {
   // Quellenangabe für OpenStreetMap ist Pflicht. Oben rechts, damit die Navigation sie nicht verdeckt.
   L.control.attribution({ position: "topright", prefix: false }).addTo(map);
 
+  markerLayer = L.layerGroup().addTo(map);
+
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map);
 
-  PUBS.forEach((pub) => {
-    const marker = L.marker([pub.lat, pub.lng], { icon: createPubIcon(pub) }).addTo(map);
-    // Antippen öffnet die Detailansicht (openPubDetail steht in js/app.js)
-    marker.on("click", () => openPubDetail(pub.id));
-  });
+  renderMarkers();
 
   // Startausschnitt: alle Kneipen im Umkreis von 10 km um die Mitte.
   // Weiter entfernte (z.B. Köpenick) würden zu weit herauszoomen; die erreicht man durch Verschieben.
@@ -56,6 +55,16 @@ function initMap() {
   const innerPubs = PUBS.filter((pub) => map.distance(BERLIN_CENTER, [pub.lat, pub.lng]) < 10000);
   const bounds = L.latLngBounds(innerPubs.map((pub) => [pub.lat, pub.lng]));
   map.fitBounds(bounds, { paddingTopLeft: [24, 60], paddingBottomRight: [24, 110] });
+}
+
+// Marker (neu) zeichnen, z.B. nachdem ein Treffen erstellt wurde
+function renderMarkers() {
+  markerLayer.clearLayers();
+  PUBS.forEach((pub) => {
+    const marker = L.marker([pub.lat, pub.lng], { icon: createPubIcon(pub) }).addTo(markerLayer);
+    // Antippen öffnet die Detailansicht (openPubDetail steht in js/app.js)
+    marker.on("click", () => openPubDetail(pub.id));
+  });
 }
 
 // Leaflet muss neu messen, wenn die Karte nach dem Ausblenden wieder sichtbar wird.

@@ -118,6 +118,7 @@ function openPubDetail(pubId, keepScroll = false) {
 
     <h3>Treffen hier</h3>
     <ul class="plain-list">${pubMeetupsHtml(pub)}</ul>
+    <button class="secondary-btn" data-create-at="${pub.id}">Treffen hier erstellen</button>
 
     <h3>Getränke</h3>
     <ul class="price-list">${priceListHtml(pub.drinks)}</ul>
@@ -229,7 +230,9 @@ function meetupCardHtml(meetup) {
         <i class="club-dot" style="background:${away.color}"></i>${away.short}
       </p>
       <p class="muted">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}</p>
-      <p class="meetup-note">„${escapeHtml(meetup.note)}“ – ${escapeHtml(meetup.host)}</p>
+      <p class="meetup-note">${
+        meetup.note ? `„${escapeHtml(meetup.note)}“ – ` : "Erstellt von "
+      }${escapeHtml(meetup.host)}</p>
       ${joinButtonHtml(meetup)}
     </li>`;
 }
@@ -262,3 +265,103 @@ meetupList.addEventListener("click", (event) => {
 
 renderClubFilter();
 renderMeetupList();
+
+// ---------- Treffen erstellen ----------
+
+const createForm = document.getElementById("create-form");
+const formError = document.getElementById("form-error");
+const timeHint = document.getElementById("time-hint");
+const toast = document.getElementById("toast");
+
+// Auswahllisten füllen: Spiele nach Anstoß sortiert, Kneipen alphabetisch
+function fillCreateForm() {
+  const matches = [...MATCHES].sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
+  createForm.match.innerHTML =
+    `<option value="">Spiel wählen</option>` +
+    matches
+      .map((match) => `<option value="${match.id}">${matchLabel(match)} · ${formatDay(match.kickoff)}, ${formatTime(match.kickoff)}</option>`)
+      .join("");
+
+  const pubs = [...PUBS].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  createForm.pub.innerHTML =
+    `<option value="">Kneipe wählen</option>` +
+    pubs
+      .map((pub) => {
+        const club = pub.clubId ? ` (Fankneipe ${findClub(pub.clubId).short})` : "";
+        return `<option value="${pub.id}">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}${club}</option>`;
+      })
+      .join("");
+}
+
+// Nach Spielauswahl: Uhrzeit 30 Minuten vor Anstoß vorschlagen
+createForm.match.addEventListener("change", () => {
+  const match = findMatch(createForm.match.value);
+  if (!match) {
+    timeHint.textContent = "";
+    return;
+  }
+  const suggestion = new Date(new Date(match.kickoff).getTime() - 30 * 60 * 1000);
+  createForm.time.value = formatTime(suggestion.toISOString());
+  timeHint.textContent = `Anstoß ${formatTime(match.kickoff)} Uhr`;
+});
+
+// Prüft die Eingaben. Gibt einen Fehlertext zurück oder "" wenn alles passt.
+function validateCreateForm() {
+  const match = findMatch(createForm.match.value);
+  if (!match) return "Bitte wähle ein Spiel.";
+  if (!createForm.pub.value) return "Bitte wähle eine Kneipe.";
+  if (!createForm.time.value) return "Bitte gib eine Uhrzeit an.";
+  if (meetTimeForMatch(match, createForm.time.value) > match.kickoff) {
+    return `Der Treffpunkt sollte vor dem Anstoß (${formatTime(match.kickoff)} Uhr) liegen.`;
+  }
+  if (!createForm.host.value.trim()) return "Bitte gib deinen Vornamen an.";
+  return "";
+}
+
+createForm.addEventListener("submit", (event) => {
+  event.preventDefault(); // Seite nicht neu laden
+
+  const error = validateCreateForm();
+  formError.textContent = error;
+  if (error) return;
+
+  createMeetup({
+    matchId: createForm.match.value,
+    pubId: createForm.pub.value,
+    time: createForm.time.value,
+    host: createForm.host.value.trim(),
+    note: createForm.note.value.trim(),
+  });
+
+  // Formular leeren, alles neu zeichnen, zur Liste wechseln
+  createForm.reset();
+  timeHint.textContent = "";
+  selectedClubId = null;
+  renderClubFilter();
+  renderMeetupList();
+  renderMarkers();
+  showView("view-meetups");
+  showToast("Treffen erstellt – du bist dabei");
+});
+
+// Fehlermeldung verschwindet, sobald man etwas ändert
+createForm.addEventListener("input", () => {
+  formError.textContent = "";
+});
+
+// "Treffen hier erstellen" im Kneipen-Detail: Formular mit dieser Kneipe öffnen
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-create-at]");
+  if (!button) return;
+  closePubDetail();
+  createForm.pub.value = button.dataset.createAt;
+  showView("view-create");
+});
+
+function showToast(text) {
+  toast.textContent = text;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+fillCreateForm();
