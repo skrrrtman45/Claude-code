@@ -220,9 +220,28 @@ body {
   background: var(--color-border);
 }
 
-/* Karte entsättigen: ruhiger Hintergrund, die Marker stechen heraus */
+/* Kartenkacheln leicht warm einfärben, passend zum Off-White der App */
 #map .leaflet-tile-pane {
-  filter: grayscale(1) brightness(1.04) contrast(0.92);
+  filter: sepia(0.25) saturate(0.8) brightness(1.02);
+}
+
+/* Kiez-Namen auf der Karte: klein, gesperrt, dezent */
+.district-label {
+  background: none;
+  border: none;
+}
+
+/* inneres span zentriert den Text auf dem Punkt (das äußere Element positioniert Leaflet) */
+.district-label span {
+  position: absolute;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  color: var(--color-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
 
 /* Legende oben links über der Karte */
