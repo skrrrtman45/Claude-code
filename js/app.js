@@ -110,7 +110,7 @@ function openPubDetail(pubId, keepScroll = false) {
 
   sheetContent.innerHTML = `
     <div class="pub-photo">
-      <img src="${pub.image}" alt="" onerror="this.remove()">
+      ${pub.image ? `<img src="${pub.image}" alt="" onerror="this.remove()">` : ""}
     </div>
     <h2 class="pub-name">${escapeHtml(pub.name)}</h2>
     <p class="muted">${escapeHtml(pub.district)}</p>

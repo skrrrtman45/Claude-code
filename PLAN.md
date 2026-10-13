@@ -13,7 +13,7 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 - Alle Bundesliga-Vereine der aktuellen Saison (Liste vorher prüfen)
 - 5–8 Spiele (Heim, Gast, Datum/Uhrzeit, Wettbewerb)
 - 4–6 vorhandene Treffen (Spiel, Kneipe, Uhrzeit, Teilnehmerzahl)
-- Lizenzfreie Fotos in `img/`, Nachweise in `img/CREDITS.md` (offen: Unsplash mit Bot-Sperre, Wikimedia drosselt Downloads; Platzhalter aktiv)
+- Lizenzfreie Fotos in `img/`, Nachweise in `img/CREDITS.md` (7 von 10 Fotos da; offen: Eckfahne, Kiezkick, Die Gelbe Wand)
 
 ## Schritt 3: Karte
 - Leaflet einbinden, Karte auf Berlin zentriert, volle Höhe

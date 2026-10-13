@@ -36,7 +36,7 @@ const CLUBS = [
 ];
 
 // Fiktive Kneipen. clubId = Fankneipe dieses Vereins, null = keine Fankneipe.
-// image: Foto in img/ (siehe img/CREDITS.md).
+// image: Foto in img/ (siehe img/CREDITS.md), null = noch kein Foto.
 const PUBS = [
   {
     id: "flutlicht",
@@ -77,7 +77,7 @@ const PUBS = [
     name: "Eckfahne",
     district: "Neukölln, Weserstraße",
     lat: 52.4870, lng: 13.4320,
-    image: "img/pub-eckfahne.jpg",
+    image: null, // noch kein Foto: Platzhalter wird angezeigt
     clubId: null,
     drinks: [
       { name: "Pils 0,5 l", price: 4.2 },
@@ -94,7 +94,7 @@ const PUBS = [
     name: "Kiezkick",
     district: "Prenzlauer Berg, Helmholtzplatz",
     lat: 52.5435, lng: 13.4180,
-    image: "img/pub-kiezkick.jpg",
+    image: null, // noch kein Foto: Platzhalter wird angezeigt
     clubId: "svw",
     drinks: [
       { name: "Pils 0,5 l", price: 5.0 },
@@ -128,7 +128,7 @@ const PUBS = [
     name: "Die Gelbe Wand",
     district: "Schöneberg, Akazienkiez",
     lat: 52.4890, lng: 13.3540,
-    image: "img/pub-gelbewand.jpg",
+    image: null, // noch kein Foto: Platzhalter wird angezeigt
     clubId: "bvb",
     drinks: [
       { name: "Pils 0,5 l", price: 4.6 },
