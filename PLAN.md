@@ -52,7 +52,7 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 
 ## Zusätzlich umgesetzt (nach Rückmeldung)
 - Zurück-Geste schließt Detailansicht, Preise eingeklappt, nur 3 Fankneipen, Sky/DAZN und Ligen
-- Schlichte Karte (CARTO ohne Beschriftung) mit eigenen Kiez-Namen
+- Ruhigere Karte: OpenStreetMap entsättigt und aufgehellt (CARTO verworfen: verlangte API-Schlüssel)
 - Profil, No-Show-Schutz, simulierter Chat
 
 ## Ideen für später (nicht in der Demo)

@@ -220,28 +220,10 @@ body {
   background: var(--color-border);
 }
 
-/* Kartenkacheln leicht warm einfärben, passend zum Off-White der App */
+/* Kartenkacheln stark vereinfacht: ohne Farbe, hell, wenig Kontrast, leicht warm.
+   So wirkt die Karte ruhig und grafisch statt realistisch. */
 #map .leaflet-tile-pane {
-  filter: sepia(0.25) saturate(0.8) brightness(1.02);
-}
-
-/* Kiez-Namen auf der Karte: klein, gesperrt, dezent */
-.district-label {
-  background: none;
-  border: none;
-}
-
-/* inneres span zentriert den Text auf dem Punkt (das äußere Element positioniert Leaflet) */
-.district-label span {
-  position: absolute;
-  white-space: nowrap;
-  transform: translate(-50%, -50%);
-  color: var(--color-muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.8;
+  filter: grayscale(1) sepia(0.15) brightness(1.12) contrast(0.7);
 }
 
 /* Legende oben links über der Karte */

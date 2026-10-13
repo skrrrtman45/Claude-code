@@ -64,6 +64,8 @@ Gerätemodus (z.B. iPhone-Größe).
 - Kein Code außer den oben genannten Dateien ohne Absprache. Keine neuen Bibliotheken
   ohne Absprache.
 - Externe Skripte nur mit fester Versionsnummer.
+- Bei jeder Änderung an CSS/JS die Versionsnummer `?v=...` in `index.html` erhöhen,
+  sonst zeigen Handys bis zu 10 Minuten alte Dateien (Zwischenspeicher von GitHub Pages).
 - Code einfach und kommentiert halten, der Nutzer soll ihn lesen können.
 
 ## Design

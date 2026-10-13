@@ -4,21 +4,6 @@
 
 const BERLIN_CENTER = [52.515, 13.41];
 
-// Kiez-Namen für die Karte: [Name, Breitengrad, Längengrad] (ungefähre Mitte)
-const DISTRICT_LABELS = [
-  ["Mitte", 52.520, 13.395],
-  ["Prenzlauer Berg", 52.540, 13.425],
-  ["Friedrichshain", 52.514, 13.455],
-  ["Kreuzberg", 52.497, 13.405],
-  ["Neukölln", 52.478, 13.440],
-  ["Schöneberg", 52.483, 13.352],
-  ["Wedding", 52.552, 13.355],
-  ["Moabit", 52.528, 13.330],
-  ["Charlottenburg", 52.511, 13.300],
-  ["Tiergarten", 52.514, 13.355],
-  ["Köpenick", 52.445, 13.585],
-];
-
 let map = null;
 let markerLayer = null; // Gruppe aller Kneipen-Marker
 
@@ -57,24 +42,13 @@ function initMap() {
 
   markerLayer = L.layerGroup().addTo(map);
 
-  // Schlichte Karte ohne Beschriftung (CARTO "light_nolabels", auf OpenStreetMap-Daten).
-  // Kostenlos für nicht-kommerzielle Nutzung; Quellenangabe ist Pflicht.
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+  // OpenStreetMap-Kacheln (kostenlos, ohne Schlüssel). Quellenangabe ist Pflicht.
+  // Per CSS (style.css, #map) entsättigt und aufgehellt, damit die Karte ruhig und
+  // weniger "realistisch" wirkt und die Marker hervorstechen.
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    subdomains: "abcd",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map);
-
-  // Eigene, dezente Kiez-Beschriftung statt Straßennamen
-  DISTRICT_LABELS.forEach(([name, lat, lng]) => {
-    L.marker([lat, lng], {
-      icon: L.divIcon({ className: "district-label", html: `<span>${name}</span>`, iconSize: null }),
-      interactive: false,
-      keyboard: false,
-      zIndexOffset: -1000, // unter den Kneipen-Markern
-    }).addTo(map);
-  });
 
   renderMarkers();
 
