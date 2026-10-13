@@ -35,10 +35,9 @@
     </section>
 
     <section id="view-meetups" class="view" data-title="Treffen" hidden>
-      <div class="empty-state">
-        <p class="empty-title">Hier kommen die Treffen hin</p>
-        <p class="empty-text">Wer schaut wann wo welches Spiel (Schritt 5).</p>
-      </div>
+      <!-- Filter nach Verein: waagerecht wischbare Chips, werden in js/app.js erzeugt -->
+      <div id="club-filter" class="chip-row"></div>
+      <ul id="meetup-list" class="meetup-list"></ul>
     </section>
 
     <section id="view-create" class="view" data-title="Neues Treffen" hidden>

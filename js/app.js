@@ -137,3 +137,89 @@ sheetBackdrop.addEventListener("click", closePubDetail);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePubDetail();
 });
+
+// ---------- Treffen-Liste mit Vereinsfilter ----------
+
+const clubFilter = document.getElementById("club-filter");
+const meetupList = document.getElementById("meetup-list");
+
+// Gewählter Verein im Filter; null = alle
+let selectedClubId = null;
+
+// Alle Treffen, nach Uhrzeit sortiert
+function allMeetupsSorted() {
+  return [...MEETUPS].sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
+}
+
+// Spielt der Verein in dem Spiel dieses Treffens?
+function meetupInvolvesClub(meetup, clubId) {
+  const match = findMatch(meetup.matchId);
+  return match.homeId === clubId || match.awayId === clubId;
+}
+
+// Filter-Chips: "Alle" plus nur die Vereine, für die es Treffen gibt
+function renderClubFilter() {
+  const clubIds = new Set();
+  MEETUPS.forEach((meetup) => {
+    const match = findMatch(meetup.matchId);
+    clubIds.add(match.homeId);
+    clubIds.add(match.awayId);
+  });
+  const clubs = CLUBS.filter((club) => clubIds.has(club.id));
+
+  const chip = (id, label) =>
+    `<button class="chip${selectedClubId === id ? " active" : ""}" data-club="${id ?? ""}">${label}</button>`;
+
+  clubFilter.innerHTML = chip(null, "Alle") + clubs.map((club) => chip(club.id, club.short)).join("");
+}
+
+// Ein Treffen als Karte
+function meetupCardHtml(meetup) {
+  const match = findMatch(meetup.matchId);
+  const pub = findPub(meetup.pubId);
+  const home = findClub(match.homeId);
+  const away = findClub(match.awayId);
+
+  return `
+    <li class="meetup-card" data-pub="${pub.id}">
+      <div class="meetup-top">
+        <span class="meetup-when">${formatDay(meetup.meetTime)} · ${formatTime(meetup.meetTime)}</span>
+        <span class="count-pill">${meetup.participants} dabei</span>
+      </div>
+      <p class="meetup-match">
+        <i class="club-dot" style="background:${home.color}"></i>${home.short}
+        <span class="muted-inline">–</span>
+        <i class="club-dot" style="background:${away.color}"></i>${away.short}
+      </p>
+      <p class="muted">${escapeHtml(pub.name)} · ${escapeHtml(pub.district.split(",")[0])}</p>
+      <p class="meetup-note">„${escapeHtml(meetup.note)}“ – ${escapeHtml(meetup.host)}</p>
+    </li>`;
+}
+
+function renderMeetupList() {
+  const meetups = allMeetupsSorted().filter(
+    (meetup) => !selectedClubId || meetupInvolvesClub(meetup, selectedClubId)
+  );
+
+  meetupList.innerHTML = meetups.length
+    ? meetups.map(meetupCardHtml).join("")
+    : `<li class="empty-state"><p class="empty-text">Keine Treffen für diesen Verein.</p></li>`;
+}
+
+// Chip antippen: Filter setzen und neu zeichnen
+clubFilter.addEventListener("click", (event) => {
+  const chip = event.target.closest(".chip");
+  if (!chip) return;
+  selectedClubId = chip.dataset.club || null;
+  renderClubFilter();
+  renderMeetupList();
+});
+
+// Karte antippen: Detail der Kneipe öffnen
+meetupList.addEventListener("click", (event) => {
+  const card = event.target.closest(".meetup-card");
+  if (card) openPubDetail(card.dataset.pub);
+});
+
+renderClubFilter();
+renderMeetupList();
