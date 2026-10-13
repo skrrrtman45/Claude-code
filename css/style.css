@@ -10,6 +10,7 @@
   --color-border: #ece7df;
   --color-accent: #ff5a36;      /* Hauptakzent: Buttons, aktive Elemente */
   --color-accent-soft: #ffe9e2; /* heller Akzent für Flächen */
+  --color-accent-strong: #c2361a; /* dunkler Akzent für Text auf hellem Akzent */
   --color-pitch: #1f9d55;       /* Rasengrün, sparsam: z.B. Fankneipen-Badge */
 
   --radius-s: 10px;
@@ -322,4 +323,190 @@ body {
 
 .leaflet-control-attribution {
   font-size: 0.6rem;
+}
+
+/* ---------- Bottom-Sheet (Kneipen-Detail) ---------- */
+/* Grauer Schleier hinter dem Sheet; Antippen schließt */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(27, 26, 23, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Das Sheet liegt unter dem Bildschirmrand und fährt mit .open herein */
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 21;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border-radius: var(--radius-l) var(--radius-l) 0 0;
+  box-shadow: 0 -8px 30px rgba(27, 26, 23, 0.15);
+  transform: translateY(100%);
+  visibility: hidden;
+  transition: transform 0.3s ease, visibility 0.3s;
+}
+
+.sheet.open {
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+/* sitzt oben rechts im Foto */
+.sheet-close {
+  position: absolute;
+  top: 36px;
+  right: 30px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet-close svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.sheet-content {
+  overflow-y: auto;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+}
+
+.sheet-content h3 {
+  margin: 24px 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+/* Foto oben; ohne Foto bleibt eine warme Fläche mit Glas-Symbol stehen */
+.pub-photo {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9c2b6' stroke-width='1.5' stroke-linejoin='round'%3E%3Cpath d='M6 5h10v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5zM16 8h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2'/%3E%3C/svg%3E")
+      center / 48px no-repeat,
+    var(--color-accent-soft);
+}
+
+.pub-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pub-name {
+  margin: 16px 0 2px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.fan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 5px 12px 5px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fan-badge i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.plain-list,
+.price-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.meetup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.meetup-row div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.count-pill {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.price-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.price-list li span:last-child {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }

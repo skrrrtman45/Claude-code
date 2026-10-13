@@ -256,3 +256,24 @@ const MEETUPS = [
     note: "Neutral, einfach Lust auf Fußball und neue Leute.",
   },
 ];
+
+// ---------- Nachschlage-Funktionen ----------
+
+function findClub(clubId) {
+  return CLUBS.find((club) => club.id === clubId);
+}
+
+function findPub(pubId) {
+  return PUBS.find((pub) => pub.id === pubId);
+}
+
+function findMatch(matchId) {
+  return MATCHES.find((match) => match.id === matchId);
+}
+
+// Alle Treffen in einer Kneipe, nach Uhrzeit sortiert
+function meetupsAtPub(pubId) {
+  return MEETUPS
+    .filter((meetup) => meetup.pubId === pubId)
+    .sort((a, b) => new Date(a.meetTime) - new Date(b.meetTime));
+}

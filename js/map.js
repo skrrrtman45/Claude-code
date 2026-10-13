@@ -1,4 +1,4 @@
-// Karte mit Leaflet: zeigt alle Kneipen als Marker.
+// Karte mit Leaflet: zeigt alle Kneipen als Marker. Antippen öffnet die Detailansicht.
 // - Fankneipen haben einen Ring in der Vereinsfarbe.
 // - Stehen in einer Kneipe Treffen an, zeigt ein oranges Badge die Anzahl.
 
@@ -6,19 +6,10 @@ const BERLIN_CENTER = [52.515, 13.41];
 
 let map = null;
 
-// Wie viele Treffen gibt es in einer Kneipe?
-function countMeetupsAt(pubId) {
-  return MEETUPS.filter((meetup) => meetup.pubId === pubId).length;
-}
-
-function findClub(clubId) {
-  return CLUBS.find((club) => club.id === clubId);
-}
-
 // Baut das Aussehen eines Markers als HTML (Leaflet "divIcon").
 function createPubIcon(pub) {
   const club = pub.clubId ? findClub(pub.clubId) : null;
-  const meetupCount = countMeetupsAt(pub.id);
+  const meetupCount = meetupsAtPub(pub.id).length;
 
   // Ringfarbe: Vereinsfarbe bei Fankneipen, sonst dunkel
   const ringColor = club ? club.color : "var(--color-text)";
@@ -55,8 +46,8 @@ function initMap() {
 
   PUBS.forEach((pub) => {
     const marker = L.marker([pub.lat, pub.lng], { icon: createPubIcon(pub) }).addTo(map);
-    // Vorläufig: kurzes Popup. In Schritt 4 wird daraus die Detailansicht.
-    marker.bindPopup(`<strong>${pub.name}</strong><br>${pub.district}`);
+    // Antippen öffnet die Detailansicht (openPubDetail steht in js/app.js)
+    marker.on("click", () => openPubDetail(pub.id));
   });
 
   // Startausschnitt: alle Kneipen im Umkreis von 10 km um die Mitte.
