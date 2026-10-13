@@ -21,12 +21,17 @@ function showView(viewId) {
   const activeView = document.getElementById(viewId);
   viewTitle.textContent = activeView.dataset.title;
 
+  // Jede Ansicht beginnt oben
+  document.querySelector(".app-main").scrollTop = 0;
+
   // Karte neu ausmessen, wenn sie wieder sichtbar wird
   if (viewId === "view-map") refreshMap();
 }
 
 navButtons.forEach((btn) => {
-  btn.addEventListener("click", () => showView(btn.dataset.view));
+  btn.addEventListener("click", () =>
+    btn.dataset.view === "view-create" ? openCreateView() : showView(btn.dataset.view)
+  );
 });
 
 // Start: Karte aufbauen
@@ -256,7 +261,10 @@ function renderClubFilter() {
     clubIds.add(match.homeId);
     clubIds.add(match.awayId);
   });
-  const clubs = CLUBS.filter((club) => clubIds.has(club.id));
+  // Lieblingsverein aus dem Profil steht vorne
+  const clubs = CLUBS.filter((club) => clubIds.has(club.id)).sort(
+    (a, b) => (b.id === profile.clubId) - (a.id === profile.clubId)
+  );
 
   const chip = (id, label) =>
     `<button class="chip${selectedClubId === id ? " active" : ""}" data-club="${id ?? ""}">${label}</button>`;
@@ -408,8 +416,14 @@ document.addEventListener("click", (event) => {
   if (!button) return;
   closePubDetail();
   createForm.pub.value = button.dataset.createAt;
-  showView("view-create");
+  openCreateView();
 });
+
+// Formular öffnen; Vorname aus dem Profil übernehmen, falls noch leer
+function openCreateView() {
+  if (!createForm.host.value) createForm.host.value = profile.name;
+  showView("view-create");
+}
 
 function showToast(text) {
   toast.textContent = text;
@@ -418,3 +432,90 @@ function showToast(text) {
 }
 
 fillCreateForm();
+
+// ---------- Profil ----------
+
+const profileForm = document.getElementById("profile-form");
+const profileBtn = document.getElementById("profile-btn");
+const profilePhotoPreview = document.getElementById("profile-photo-preview");
+
+const BERLIN_DISTRICTS = [
+  "Charlottenburg-Wilmersdorf", "Friedrichshain-Kreuzberg", "Lichtenberg",
+  "Marzahn-Hellersdorf", "Mitte", "Neukölln", "Pankow", "Reinickendorf",
+  "Spandau", "Steglitz-Zehlendorf", "Tempelhof-Schöneberg", "Treptow-Köpenick",
+];
+
+const PERSON_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
+
+// Foto, sonst Initiale, sonst Personen-Symbol
+function avatarHtml(photo, name) {
+  if (photo) return `<img src="${photo}" alt="">`;
+  if (name) return `<span>${escapeHtml(name.trim()[0].toUpperCase())}</span>`;
+  return PERSON_ICON;
+}
+
+function renderProfileButton() {
+  profileBtn.innerHTML = avatarHtml(profile.photo, profile.name);
+}
+
+// Foto, das gerade im Formular gewählt ist (wird erst beim Speichern übernommen)
+let pendingPhoto = "";
+
+function fillProfileForm() {
+  profileForm.club.innerHTML =
+    `<option value="">Kein Lieblingsverein</option>` +
+    CLUBS.map((club) => `<option value="${club.id}">${escapeHtml(club.name)}</option>`).join("");
+  profileForm.district.innerHTML =
+    `<option value="">Bezirk wählen</option>` +
+    BERLIN_DISTRICTS.map((d) => `<option>${d}</option>`).join("");
+
+  profileForm.name.value = profile.name;
+  profileForm.club.value = profile.clubId;
+  profileForm.district.value = profile.district;
+  profileForm.querySelectorAll("[name=lang]").forEach((box) => {
+    box.checked = profile.languages.includes(box.value);
+  });
+  pendingPhoto = profile.photo;
+  profilePhotoPreview.innerHTML = avatarHtml(pendingPhoto, profile.name);
+}
+
+// Foto verkleinern (quadratisch, 160 px), damit es in den Browser-Speicher passt
+profileForm.photo.addEventListener("change", () => {
+  const file = profileForm.photo.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const size = 160;
+    const side = Math.min(img.width, img.height);
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    canvas.getContext("2d").drawImage(
+      img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size
+    );
+    pendingPhoto = canvas.toDataURL("image/jpeg", 0.8);
+    profilePhotoPreview.innerHTML = avatarHtml(pendingPhoto, "");
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+profileForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveProfile({
+    name: profileForm.name.value.trim(),
+    photo: pendingPhoto,
+    clubId: profileForm.club.value,
+    district: profileForm.district.value,
+    languages: [...profileForm.querySelectorAll("[name=lang]:checked")].map((box) => box.value),
+  });
+  renderProfileButton();
+  renderClubFilter();
+  showToast("Profil gespeichert");
+});
+
+profileBtn.addEventListener("click", () => {
+  fillProfileForm();
+  showView("view-profile");
+});
+
+renderProfileButton();

@@ -17,10 +17,14 @@
   <!-- Kopfzeile: großer Titel der aktuellen Ansicht, rechts die Stadt -->
   <header class="app-header">
     <h1 id="view-title">Karte</h1>
-    <span class="city-chip">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-      Berlin
-    </span>
+    <div class="header-actions">
+      <span class="city-chip">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+        Berlin
+      </span>
+      <!-- Profil-Button: zeigt Foto oder Initialen (js/app.js) -->
+      <button id="profile-btn" class="avatar-btn" data-view="view-profile" aria-label="Profil"></button>
+    </div>
   </header>
 
   <!-- Inhaltsbereich: genau eine Ansicht ist sichtbar, die anderen haben "hidden" -->
@@ -72,6 +76,43 @@
 
         <p id="form-error" class="form-error" role="alert"></p>
         <button type="submit" class="submit-btn">Treffen erstellen</button>
+      </form>
+    </section>
+    <section id="view-profile" class="view" data-title="Profil" hidden>
+      <form id="profile-form" class="form" novalidate>
+        <div class="profile-photo-row">
+          <div id="profile-photo-preview" class="avatar avatar-large"></div>
+          <label class="secondary-btn photo-btn">
+            Foto wählen
+            <input type="file" name="photo" accept="image/*" hidden>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Vorname</span>
+          <input type="text" name="name" maxlength="30" autocomplete="given-name">
+        </label>
+
+        <label class="field">
+          <span class="field-label">Lieblingsverein</span>
+          <select name="club"></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Dein Bezirk</span>
+          <select name="district"></select>
+        </label>
+
+        <fieldset class="field">
+          <legend class="field-label">Sprachen</legend>
+          <div class="toggle-row">
+            <label class="toggle"><input type="checkbox" name="lang" value="de"><span>Deutsch</span></label>
+            <label class="toggle"><input type="checkbox" name="lang" value="en"><span>English</span></label>
+          </div>
+        </fieldset>
+
+        <p class="field-hint">Dein Profil wird nur in diesem Browser gespeichert (Demo, kein Konto).</p>
+        <button type="submit" class="submit-btn">Speichern</button>
       </form>
     </section>
   </main>

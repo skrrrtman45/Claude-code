@@ -91,3 +91,28 @@ function createMeetup({ matchId, pubId, time, host, note }) {
   toggleJoin(meetup.id);
   return meetup;
 }
+
+// ---------- Profil ----------
+
+const STORAGE_KEY_PROFILE = "fantreff.profile";
+
+const EMPTY_PROFILE = { name: "", photo: "", clubId: "", district: "", languages: [] };
+
+function loadProfile() {
+  try {
+    return { ...EMPTY_PROFILE, ...JSON.parse(localStorage.getItem(STORAGE_KEY_PROFILE)) };
+  } catch {
+    return { ...EMPTY_PROFILE };
+  }
+}
+
+let profile = loadProfile();
+
+function saveProfile(newProfile) {
+  profile = newProfile;
+  try {
+    localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+  } catch {
+    // z.B. Speicher voll: ignorieren
+  }
+}
