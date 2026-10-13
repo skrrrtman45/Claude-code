@@ -12,12 +12,16 @@ Es ist eine **Demo**. Kein Produktivsystem.
 Drin:
 - Kartenansicht mit Kneipen und Treffen
 - Kneipen-Detail: Bild, Getränkepreise, Essensangebot, ggf. Fankneipe eines Vereins
-- Treffen erstellen (Spiel, Kneipe, Uhrzeit) und beitreten
+- Treffen erstellen (Spiel, Kneipe, Uhrzeit, Plätze) und verbindlich zusagen
+- No-Show-Schutz: begrenzte Plätze, Absage bis 3 Std. vorher, Warteliste, Erinnerung in der App
+- Profil (Name, Foto, Lieblingsverein, Bezirk, Sprachen), nur im Browser gespeichert
+- Simulierter Chat pro Treffen: Beispielnachrichten + eigene Nachrichten nur auf dem Gerät,
+  klar als Demo gekennzeichnet
 - Später optional: Swipe-Ansicht der Treffen
 
 Nicht drin (nicht einbauen, auch nicht "vorbereitend"):
-- Login / Accounts
-- Chat
+- Login / Accounts, echte Verifizierung
+- Echter Chat oder echte Push-Benachrichtigungen (bräuchten einen Server)
 - Backend, Datenbank, API
 - Bezahlung
 

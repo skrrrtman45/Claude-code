@@ -155,6 +155,26 @@
     <div id="pub-sheet-content" class="sheet-content"></div>
   </div>
 
+  <!-- Simulierter Chat eines Treffens (Vollbild), Inhalt aus js/app.js -->
+  <div id="chat" class="chat" role="dialog" aria-modal="true" aria-label="Chat">
+    <header class="chat-header">
+      <button id="chat-back" class="chat-back" aria-label="Zurück">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div>
+        <p id="chat-title" class="chat-title"></p>
+        <p id="chat-subtitle" class="muted"></p>
+      </div>
+    </header>
+    <div id="chat-messages" class="chat-messages"></div>
+    <form id="chat-form" class="chat-form">
+      <input name="text" type="text" maxlength="300" placeholder="Nachricht schreiben" autocomplete="off">
+      <button type="submit" aria-label="Senden">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 16-2-6-8-2z"/></svg>
+      </button>
+    </form>
+  </div>
+
   <!-- Bestätigung vor der verbindlichen Zusage -->
   <dialog id="confirm-dialog" class="dialog">
     <h2>Verbindlich zusagen?</h2>

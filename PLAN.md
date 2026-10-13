@@ -50,6 +50,16 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 - Treffen als Karten-Stapel, nach rechts = beitreten, nach links = überspringen
 - Umsetzung mit Touch-Events in Vanilla JS, ohne Bibliothek
 
+## Zusätzlich umgesetzt (nach Rückmeldung)
+- Zurück-Geste schließt Detailansicht, Preise eingeklappt, nur 3 Fankneipen, Sky/DAZN und Ligen
+- Schlichte Karte (CARTO ohne Beschriftung) mit eigenen Kiez-Namen
+- Profil, No-Show-Schutz, simulierter Chat
+
+## Ideen für später (nicht in der Demo)
+- Benachrichtigungen: neues Treffen für deinen Verein in deinem Bezirk, Änderungen bei Anstoßzeiten
+- Vibe- und Sprachfilter (ruhig/laut, Deutsch/Englisch)
+- Vertrauen: Account-Verifizierung, private Rückmeldung nach dem Treffen ("Hat gepasst: ja/nein")
+
 ## Entscheidungen
 - Bilder: lizenzfreie Fotos, lokal gespeichert, mit Quellennachweis
 - Vereine: ganze Bundesliga

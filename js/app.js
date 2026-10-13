@@ -234,7 +234,10 @@ function joinButtonHtml(meetup) {
     return `
       <div class="joined-row">
         <span class="joined-label">${CHECK_ICON}Du bist dabei</span>
-        ${canCancel(meetup) ? `<button class="leave-btn" data-action="cancel" data-id="${id}">Absagen</button>` : ""}
+        <span class="joined-actions">
+          ${canCancel(meetup) ? `<button class="leave-btn" data-action="cancel" data-id="${id}">Absagen</button>` : ""}
+          <button class="chat-btn" data-action="chat" data-id="${id}">Chat</button>
+        </span>
       </div>${hintHtml}`;
   }
   if (isOnWaitlist(id)) {
@@ -320,6 +323,9 @@ document.addEventListener("click", (event) => {
       break;
     case "locked":
       showToast("Absage nicht mehr möglich – bitte im Chat Bescheid geben");
+      return;
+    case "chat":
+      openChat(meetup);
       return;
     case "waitlist":
       toggleWaitlist(meetup.id);
@@ -640,3 +646,96 @@ profileBtn.addEventListener("click", () => {
 });
 
 renderProfileButton();
+
+// ---------- Simulierter Chat ----------
+// Demo: vorbereitete Nachrichten der Gruppe + deine eigenen (nur auf diesem Gerät).
+// Auf deine erste Nachricht antwortet die Gruppe einmal automatisch.
+
+const chat = document.getElementById("chat");
+const chatMessages = document.getElementById("chat-messages");
+const chatForm = document.getElementById("chat-form");
+let chatMeetup = null;
+
+const FAKE_NAMES = ["Aylin", "Tom", "Mira", "Ben", "Clara", "Emre", "Lukas", "Jule"];
+const FAKE_LINES = [
+  "Bin dabei! Wer ist noch neu in Berlin?",
+  "Ich komme direkt von der Arbeit, kann 10 Minuten später werden.",
+  "Hab einen Tisch vorne beim großen Screen angefragt.",
+  "Erkennungszeichen: Schal um den Hals.",
+];
+const FAKE_REPLIES = [
+  "Super, bis später!",
+  "Top, freu mich!",
+  "Sehr gut, ich halte dir einen Platz frei.",
+];
+
+// Feste Beispiel-Nachrichten je Treffen (immer gleich für dasselbe Treffen)
+function seedMessages(meetup) {
+  const n = [...meetup.id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  const messages = [];
+  if (meetup.note) messages.push({ from: meetup.host, text: meetup.note });
+  if (!meetup.id.startsWith("u")) {
+    messages.push({ from: FAKE_NAMES[n % FAKE_NAMES.length], text: FAKE_LINES[n % FAKE_LINES.length] });
+    messages.push({ from: FAKE_NAMES[(n + 3) % FAKE_NAMES.length], text: FAKE_LINES[(n + 1) % FAKE_LINES.length] });
+  }
+  return messages;
+}
+
+function renderChat() {
+  const own = loadChat(chatMeetup.id);
+  const all = [...seedMessages(chatMeetup), ...own];
+  chatMessages.innerHTML =
+    `<p class="chat-system">Demo-Chat: Deine Nachrichten bleiben auf diesem Gerät.</p>` +
+    all
+      .map((m) =>
+        m.from === "me"
+          ? `<div class="bubble me">${escapeHtml(m.text)}</div>`
+          : `<div class="bubble"><span class="bubble-name">${escapeHtml(m.from)}</span>${escapeHtml(m.text)}</div>`
+      )
+      .join("");
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function openChat(meetup) {
+  chatMeetup = meetup;
+  const match = findMatch(meetup.matchId);
+  document.getElementById("chat-title").textContent = matchLabel(match);
+  document.getElementById("chat-subtitle").textContent =
+    `${findPub(meetup.pubId).name} · ${formatDay(meetup.meetTime)}, ${formatTime(meetup.meetTime)}`;
+  renderChat();
+  history.pushState({ chat: true }, "");
+  chat.classList.add("open");
+}
+
+function hideChat() {
+  chatMeetup = null;
+  chat.classList.remove("open");
+}
+
+document.getElementById("chat-back").addEventListener("click", () => history.back());
+window.addEventListener("popstate", () => {
+  if (chatMeetup) hideChat();
+});
+
+chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = chatForm.text.value.trim();
+  if (!text) return;
+  const meetup = chatMeetup;
+  const messages = loadChat(meetup.id);
+  const isFirst = !messages.some((m) => m.from === "me");
+  messages.push({ from: "me", text });
+  saveChat(meetup.id, messages);
+  chatForm.text.value = "";
+  renderChat();
+
+  // Einmalige automatische Antwort, damit der Chat lebendig wirkt (Demo)
+  if (isFirst) {
+    setTimeout(() => {
+      const updated = loadChat(meetup.id);
+      updated.push({ from: meetup.host, text: FAKE_REPLIES[updated.length % FAKE_REPLIES.length] });
+      saveChat(meetup.id, updated);
+      if (chatMeetup && chatMeetup.id === meetup.id) renderChat();
+    }, 1500);
+  }
+});

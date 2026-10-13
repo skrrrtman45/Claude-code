@@ -153,3 +153,14 @@ function toggleWaitlist(meetupId) {
     : [...waitlistIds, meetupId];
   saveList(STORAGE_KEY_WAITLIST, waitlistIds);
 }
+
+// ---------- Simulierter Chat ----------
+// Nachrichten pro Treffen, nur in diesem Browser. Niemand sonst sieht sie.
+
+function loadChat(meetupId) {
+  return loadList("fantreff.chat." + meetupId);
+}
+
+function saveChat(meetupId, messages) {
+  saveList("fantreff.chat." + meetupId, messages);
+}
