@@ -62,6 +62,17 @@ Gerätemodus (z.B. iPhone-Größe).
 - Externe Skripte nur mit fester Versionsnummer.
 - Code einfach und kommentiert halten, der Nutzer soll ihn lesen können.
 
+## Design
+
+- Richtung: modern, minimalistisch, so einfach wie möglich zu bedienen, aber warm und
+  mit Charakter (keine kühle Finanz-App-Optik).
+- Farben, Radien, Schatten nur über die CSS-Variablen in `css/style.css` (`:root`).
+  Hintergrund warmes Off-White, Akzent Flutlicht-Orange `#ff5a36`, Rasengrün nur
+  sparsam (z.B. Fankneipen-Badge).
+- Systemschrift, Titel fett (800) mit leicht engem Zeichenabstand.
+- Runde Formen, Linien-Icons (inline SVG, kein Icon-Paket), keine Emojis.
+- Pro Ansicht genau eine Hauptaktion in Akzentfarbe. Wenig Text, große Touch-Ziele.
+
 ## Beispieldaten
 
 - Kneipennamen und Angaben sind **fiktiv**. Keine echten Kneipen mit erfundenen

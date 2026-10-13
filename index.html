@@ -4,45 +4,59 @@
   <meta charset="utf-8">
   <!-- viewport-fit=cover: nutzt auf iPhones den ganzen Bildschirm (inkl. Notch-Bereich) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#faf7f2">
   <title>Fan-Treff</title>
-  <!-- Kleines Icon für den Browser-Tab (grüner Kreis), direkt eingebettet -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%231a7f37'/%3E%3C/svg%3E">
+  <!-- Kleines Icon für den Browser-Tab (Akzentfarbe), direkt eingebettet -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23ff5a36'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Kopfzeile: zeigt den Titel der aktuellen Ansicht -->
+  <!-- Kopfzeile: großer Titel der aktuellen Ansicht, rechts die Stadt -->
   <header class="app-header">
     <h1 id="view-title">Karte</h1>
+    <span class="city-chip">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+      Berlin
+    </span>
   </header>
 
   <!-- Inhaltsbereich: genau eine Ansicht ist sichtbar, die anderen haben "hidden" -->
   <main class="app-main">
     <section id="view-map" class="view" data-title="Karte">
-      <p class="placeholder">Hier kommt die Karte hin (Schritt 3).</p>
+      <div class="empty-state">
+        <p class="empty-title">Hier kommt die Karte hin</p>
+        <p class="empty-text">Kneipen und Treffen in deiner Nähe (Schritt 3).</p>
+      </div>
     </section>
 
     <section id="view-meetups" class="view" data-title="Treffen" hidden>
-      <p class="placeholder">Hier kommt die Liste der Treffen hin (Schritt 5).</p>
+      <div class="empty-state">
+        <p class="empty-title">Hier kommen die Treffen hin</p>
+        <p class="empty-text">Wer schaut wann wo welches Spiel (Schritt 5).</p>
+      </div>
     </section>
 
-    <section id="view-create" class="view" data-title="Treffen erstellen" hidden>
-      <p class="placeholder">Hier kommt das Formular zum Erstellen hin (Schritt 7).</p>
+    <section id="view-create" class="view" data-title="Neues Treffen" hidden>
+      <div class="empty-state">
+        <p class="empty-title">Hier kommt das Formular hin</p>
+        <p class="empty-text">Spiel, Kneipe, Uhrzeit wählen (Schritt 7).</p>
+      </div>
     </section>
   </main>
 
-  <!-- Untere Navigationsleiste: data-view verweist auf die id der Ansicht -->
+  <!-- Untere Navigationsleiste: data-view verweist auf die id der Ansicht.
+       "Neu" sitzt in der Mitte und ist als Hauptaktion hervorgehoben. -->
   <nav class="app-nav">
     <button class="nav-btn active" data-view="view-map">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zm0 2.2 6 2v11.6l-6-2V6.2z"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4zM9 4v13.5M15 6.5V20"/></svg>
       <span>Karte</span>
     </button>
-    <button class="nav-btn" data-view="view-meetups">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v2H4zm0 6h16v2H4zm0 6h16v2H4z"/></svg>
-      <span>Treffen</span>
+    <button class="nav-btn nav-btn-main" data-view="view-create" aria-label="Neues Treffen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     </button>
-    <button class="nav-btn" data-view="view-create">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
-      <span>Neu</span>
+    <button class="nav-btn" data-view="view-meetups">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14a6.5 6.5 0 0 1 3 6"/></svg>
+      <span>Treffen</span>
     </button>
   </nav>
 
