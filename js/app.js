@@ -362,6 +362,7 @@ function renderReminder() {
 
 const clubFilter = document.getElementById("club-filter");
 const meetupList = document.getElementById("meetup-list");
+const scopeToggle = document.getElementById("scope-toggle");
 
 // Gewählter Verein im Filter; null = alle
 let selectedClubId = null;
@@ -422,15 +423,54 @@ function meetupCardHtml(meetup) {
     </li>`;
 }
 
+// "all" = alle Treffen, "mine" = zugesagt oder auf der Warteliste
+let listScope = "all";
+
+function isMine(meetup) {
+  return isJoined(meetup.id) || isOnWaitlist(meetup.id);
+}
+
+// Umschalter "Alle | Meine" mit Anzahl deiner Treffen
+function renderScopeToggle() {
+  const mineCount = MEETUPS.filter(isMine).length;
+  scopeToggle.innerHTML = `
+    <button class="${listScope === "all" ? "active" : ""}" data-scope="all">Alle</button>
+    <button class="${listScope === "mine" ? "active" : ""}" data-scope="mine">
+      Meine${mineCount ? ` <span class="scope-count">${mineCount}</span>` : ""}
+    </button>`;
+  // Vereinsfilter nur bei "Alle"
+  clubFilter.hidden = listScope === "mine";
+}
+
 function renderMeetupList() {
-  const meetups = allMeetupsSorted().filter(
-    (meetup) => !selectedClubId || meetupInvolvesClub(meetup, selectedClubId)
+  renderScopeToggle();
+  const meetups = allMeetupsSorted().filter((meetup) =>
+    listScope === "mine"
+      ? isMine(meetup)
+      : !selectedClubId || meetupInvolvesClub(meetup, selectedClubId)
   );
 
-  meetupList.innerHTML = meetups.length
-    ? meetups.map(meetupCardHtml).join("")
-    : `<li class="empty-state"><p class="empty-text">Keine Treffen für diesen Verein.</p></li>`;
+  if (meetups.length) {
+    meetupList.innerHTML = meetups.map(meetupCardHtml).join("");
+  } else if (listScope === "mine") {
+    meetupList.innerHTML = `
+      <li class="empty-state">
+        <p class="empty-title">Noch keine Treffen</p>
+        <p class="empty-text">Sag bei einem Treffen zu, dann findest du es hier.</p>
+        <button class="secondary-btn" data-scope="all">Alle Treffen ansehen</button>
+      </li>`;
+  } else {
+    meetupList.innerHTML = `<li class="empty-state"><p class="empty-text">Keine Treffen für diesen Verein.</p></li>`;
+  }
 }
+
+// Umschalter (und der Button im leeren Zustand)
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-scope]");
+  if (!button) return;
+  listScope = button.dataset.scope;
+  renderMeetupList();
+});
 
 // Chip antippen: Filter setzen und neu zeichnen
 clubFilter.addEventListener("click", (event) => {
