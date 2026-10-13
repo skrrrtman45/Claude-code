@@ -76,8 +76,9 @@ Gerätemodus (z.B. iPhone-Größe).
 
 ## Betrieb
 
-- Vorerst nur lokal. Weil die App statisch ist, kann sie später ohne Codeänderung
-  online gestellt werden (z.B. GitHub Pages).
+- Online über GitHub Pages, Quelle: Branch `claude/sweet-ramanujan-w7s1ou`, Ordner `/`.
+  Jeder Push auf diesen Branch aktualisiert die Seite.
+- Das Repository ist öffentlich: keine Zugangsdaten oder privaten Infos committen.
 
 ## Arbeitsweise
 

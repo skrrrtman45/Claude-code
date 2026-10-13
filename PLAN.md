@@ -49,4 +49,4 @@ Jeder Schritt ist einzeln lauffähig und wird einzeln committet.
 ## Entscheidungen
 - Bilder: lizenzfreie Fotos, lokal gespeichert, mit Quellennachweis
 - Vereine: ganze Bundesliga
-- Betrieb: vorerst nur lokal; Online-Stellung (z.B. GitHub Pages) später möglich
+- Betrieb: online über GitHub Pages (Branch `claude/sweet-ramanujan-w7s1ou`)
