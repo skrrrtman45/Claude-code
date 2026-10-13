@@ -20,8 +20,14 @@ function showView(viewId) {
   // Titel in der Kopfzeile anpassen
   const activeView = document.getElementById(viewId);
   viewTitle.textContent = activeView.dataset.title;
+
+  // Karte neu ausmessen, wenn sie wieder sichtbar wird
+  if (viewId === "view-map") refreshMap();
 }
 
 navButtons.forEach((btn) => {
   btn.addEventListener("click", () => showView(btn.dataset.view));
 });
+
+// Start: Karte aufbauen
+initMap();
